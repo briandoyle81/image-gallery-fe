@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from "react";
 
 type AddressDropdownProps = {
@@ -24,7 +26,6 @@ const AddressDropdown: React.FC<AddressDropdownProps> = ({ addresses, handleSetA
           onChange={(e) => setSelectedAddress(e.target.value)}
           className="w-full max-w-md border border-gray-300 rounded-lg p-2 bg-white shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          <option value="">Select an address</option>
           {addresses.map((address, index) => (
             <option key={index} value={address}>
               {address}

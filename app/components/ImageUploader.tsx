@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from "react";
 
 type ImageUploaderProps = {
@@ -22,10 +24,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    // if (file.size > 30 * 1024) {
-    //   setError("Image size must be 30KB or smaller");
-    //   return;
-    // }
+    if (file.size > 31 * 1024) {
+      setError("Image size must be 31KB or smaller");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = () => {

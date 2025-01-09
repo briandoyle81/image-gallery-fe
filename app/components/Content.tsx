@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import AddressList from './AddressList';
@@ -28,6 +28,7 @@ export default function Content() {
 
   useEffect(() => {
     if (receipt) {
+      console.log(receipt);
       setReload(true);
       setAwaitingResponse(false);
     }
@@ -151,6 +152,11 @@ export default function Content() {
           <div className="mb-4">
             <ImageGallery images={imageGallery} />
           </div>
+        </div>
+      )}
+      {!account.isConnected && (
+        <div className="text-center">
+          <p className="text-xl font-bold">Connect your wallet to view your galleries</p>
         </div>
       )}
     </div>
