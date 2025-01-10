@@ -1,6 +1,6 @@
 'use client';
 
-import { act, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import AddressList from './AddressList';
@@ -26,36 +26,6 @@ export default function Content() {
     hash: data,
   });
 
-  useEffect(() => {
-    if (receipt) {
-      console.log(receipt);
-      setReload(true);
-      setAwaitingResponse(false);
-    }
-  }, [receipt]);
-
-  useEffect(() => {
-    if (reload) {
-      setReload(false);
-      queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
-    }
-  }, [reload]);
-
-  useEffect(() => {
-    if (writeError) {
-      console.error(writeError);
-      setAwaitingResponse(false);
-    }
-  }, [writeError]);
-
-  useEffect(() => {
-    if (receiptError) {
-      console.error(receiptError);
-      setAwaitingResponse(false);
-    }
-  }, [receiptError]);
-
   const {
     data: galleryAddressesData,
     queryKey: galleryAddressesQueryKey,
@@ -75,7 +45,7 @@ export default function Content() {
         setActiveAddress(newAddresses[0]);
       }
     }
-  }, [galleryAddressesData]);
+  }, [galleryAddressesData, activeAddress]);
 
   const {
     data: galleryData,
@@ -94,6 +64,36 @@ export default function Content() {
       setImageGallery(newImages);
     }
   }, [galleryData]);
+
+  useEffect(() => {
+    if (receipt) {
+      console.log(receipt);
+      setReload(true);
+      setAwaitingResponse(false);
+    }
+  }, [receipt]);
+
+  useEffect(() => {
+    if (reload) {
+      setReload(false);
+      queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
+      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
+    }
+  }, [reload, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
+
+  useEffect(() => {
+    if (writeError) {
+      console.error(writeError);
+      setAwaitingResponse(false);
+    }
+  }, [writeError]);
+
+  useEffect(() => {
+    if (receiptError) {
+      console.error(receiptError);
+      setAwaitingResponse(false);
+    }
+  }, [receiptError]);
 
   function handleCreateGallery() {
     setAwaitingResponse(true);
@@ -134,22 +134,26 @@ export default function Content() {
                 }`}>
               {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
             </button>
-            <AddressList addresses={galleryAddresses} handleSetActiveAddress={handleSetActiveAddress} />
-            <ImageUploader setUploadedBase64Image={setUploadedBase64Image} />
-            {uploadedBase64Image && (
-              <div className="mt-6 text-center">
-                <img
-                  src={uploadedBase64Image}
-                  alt="Uploaded"
-                  className="max-w-xs mx-auto rounded-lg shadow-md"
-                />
-                <button onClick={handleSaveOnchain} disabled={awaitingResponse}
-                  className={`px-4 py-2 rounded-lg text-white ${!awaitingResponse
-                    ? "bg-blue-500 hover:bg-blue-600"
-                    : "bg-gray-300 cursor-not-allowed"
-                    }`}>
-                  {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
-                </button>
+            {galleryAddresses.length > 0 && (
+              <div>
+                <AddressList addresses={galleryAddresses} handleSetActiveAddress={handleSetActiveAddress} />
+                <ImageUploader setUploadedBase64Image={setUploadedBase64Image} />
+                {uploadedBase64Image && (
+                  <div className="mt-6 text-center">
+                    <img
+                      src={uploadedBase64Image}
+                      alt="Uploaded"
+                      className="max-w-xs mx-auto rounded-lg shadow-md"
+                    />
+                    <button onClick={handleSaveOnchain} disabled={awaitingResponse}
+                      className={`px-4 py-2 rounded-lg text-white ${!awaitingResponse
+                        ? "bg-blue-500 hover:bg-blue-600"
+                        : "bg-gray-300 cursor-not-allowed"
+                        }`}>
+                      {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

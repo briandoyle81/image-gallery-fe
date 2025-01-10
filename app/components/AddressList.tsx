@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 
 type AddressDropdownProps = {
   addresses: string[]; // Array of EVM addresses
-  handleSetActiveAddress: Function;
+  handleSetActiveAddress: (address: string) => void;
 };
 
 const AddressDropdown: React.FC<AddressDropdownProps> = ({ addresses, handleSetActiveAddress }) => {
@@ -15,7 +15,7 @@ const AddressDropdown: React.FC<AddressDropdownProps> = ({ addresses, handleSetA
       console.log(selectedAddress);
       handleSetActiveAddress(selectedAddress);
     }
-  }, [selectedAddress]);
+  }, [selectedAddress, handleSetActiveAddress]);
 
   return (
     <div className="container mx-auto px-4">
