@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { act, useEffect, useState } from 'react';
 import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import AddressList from './AddressList';
@@ -71,6 +71,9 @@ export default function Content() {
       const newAddresses = galleryAddressesData as string[];
       newAddresses.reverse();
       setGalleryAddresses(newAddresses);
+      if (activeAddress === '') {
+        setActiveAddress(newAddresses[0]);
+      }
     }
   }, [galleryAddressesData]);
 
