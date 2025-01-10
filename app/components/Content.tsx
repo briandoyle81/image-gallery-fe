@@ -111,13 +111,12 @@ export default function Content() {
   }
 
   function handleSaveOnchain() {
-    // console.log(uploadedBase64Image);
     setAwaitingResponse(true);
     writeContract({
       abi: personalImageGallery.abi,
       address: activeAddress as `0x${string}`,
       functionName: 'addImage',
-      args: ['test', uploadedBase64Image],
+      args: ['', uploadedBase64Image],
     });
   }
 
@@ -126,6 +125,8 @@ export default function Content() {
       {account.isConnected && (
         <div>
           <div className="mb-4">
+            {writeError && <p className="text-red-500">There was an error with the last transaction:</p>}
+            {writeError && <p className="text-red-500">{writeError.message}</p>}
             <button onClick={handleCreateGallery} disabled={awaitingResponse}
               className={`px-4 py-2 rounded-lg text-white ${!awaitingResponse
                 ? "bg-blue-500 hover:bg-blue-600"

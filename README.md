@@ -1,36 +1,20 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## WARNING
+
+This is not a production-ready application.  It is a rough demo with poor styling and hydration errors that are suppressed.
+
+It will not be maintained consistently, but please open an issue in the [Flow docs site](https://github.com/onflow/docs/issues) if it breaks completely.
+
+I'm also happy to accept PRs here, but ask before spending a lot of time.  I don't want this to be "better" if it also becomes more complex.
+
 ## Getting Started
 
-First, run the development server:
+If you want to connect to your own contracts, update [contracts.ts](app/contracts/contracts.ts) and the related imports for addresses and abis.  You do **not** need an address for the galleries themselves, those will be pulled from the gallery factory.
+
+Add a `.env` and put your WalletConnect ID in `NEXT_PUBLIC_WALLETCONNECT_ID`
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

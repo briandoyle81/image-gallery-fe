@@ -9,8 +9,9 @@ import {
 } from '@rainbow-me/rainbowkit';
 import { flowMainnet } from 'viem/chains';
 import { http } from 'wagmi';
+import { coinbaseWallet, metaMaskWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
 
-const projectId = "51407fcf066d74968d9a1a4c6da0d994"; // Replace with your actual project ID
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID as string;
 
 export interface MyWalletOptions {
   projectId: string;
@@ -82,6 +83,10 @@ const connectors = connectorsForWallets(
       groupName: 'Recommended',
       wallets: [flowWallet],
     },
+    {
+      groupName: 'Other',
+      wallets: [metaMaskWallet, coinbaseWallet, walletConnectWallet],
+    }
   ],
   {
     appName: 'Onchain Image Gallery',

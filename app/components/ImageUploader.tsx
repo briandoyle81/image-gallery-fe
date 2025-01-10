@@ -10,6 +10,14 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   setUploadedBase64Image,
 }) => {
   const [error, setError] = useState<string | null>(null);
+  const [uploadedImageSize, setUploadedImageSize] = useState<number | null>(null);
+
+  const getStringSizeInKB = (str: string) => {
+    const blob = new Blob([str]); // Create a Blob from the string
+    const sizeInBytes = blob.size; // Size in bytes
+    const sizeInKB = sizeInBytes / 1024; // Convert to KB
+    return sizeInKB;
+  }
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,8 +32,8 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
       return;
     }
 
-    if (file.size > 31 * 1024) {
-      setError("Image size must be 31KB or smaller");
+    if (file.size > 32 * 1024) {
+      setError("Image size must be 32KB or smaller");
       return;
     }
 
@@ -33,6 +41,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     reader.onload = () => {
       const base64 = reader.result as string;
       setUploadedBase64Image(base64);
+      setUploadedImageSize(getStringSizeInKB(base64));
       setError(null);
     };
     reader.onerror = () => {
@@ -44,6 +53,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
   return (
     <div className="container mx-auto px-4">
       <div className="flex flex-col items-center space-y-4">
+        <br />
+        <div className="text-center">
+          <p className="text-sm text-gray-500">Max upload size: 32KB</p>
+        </div>
         <label
           htmlFor="image-upload"
           className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600"
@@ -58,6 +71,12 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           className="hidden"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        {(uploadedImageSize && uploadedImageSize > 40) && (
+          <div>
+            <p className="text-red-500 text-sm">Warning: Base64 size is {uploadedImageSize}KB</p>
+            <p className="text-red-500 text-sm">Size limit for image + description is ~41.18 KB</p>
+          </div>
+        )}
       </div>
     </div>
   );
