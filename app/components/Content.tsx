@@ -26,7 +26,7 @@ export default function Content() {
     Object.entries(chainLogos).map(([chainName, logo]) => ({
       chainName,
       logo,
-      totalCost: '0',
+      totalCost: undefined,
     }))
   );
 
@@ -145,12 +145,10 @@ export default function Content() {
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <div className="mb-8">
-          <p className="text-lg">
-            This is a fun benchmark. It is not best practice and is not a
-            production app.
-          </p>
-        </div>
+        <p className="text-lg">
+          This is a fun benchmark. It is not best practice and is not a
+          production app.
+        </p>
         <div className="flex justify-between items-center mb-8">
           <div>
             <label className="block text-sm font-medium text-gray-700">

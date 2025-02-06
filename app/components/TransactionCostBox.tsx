@@ -8,12 +8,10 @@ type TransactionCostBoxProps = {
 };
 
 const TransactionCostBox: React.FC<TransactionCostBoxProps> = ({
-  costDetails
+  costDetails,
 }) => {
-
-
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
       {costDetails.length > 0 ? (
         costDetails.map((chain) => (
           <div
@@ -31,10 +29,15 @@ const TransactionCostBox: React.FC<TransactionCostBoxProps> = ({
                 <p className="text-red-500 text-sm">Error: {chain.error}</p>
               ) : (
                 <p className="text-gray-700">
-                  Cost: {chain.chainName === "Flow Sponsored by Flow Wallet" ? (
-                    <span className="font-mono"><s>$0.00 USD</s> <strong>FREE!</strong></span>
+                  Cost:{' '}
+                  {chain.chainName === 'Flow Sponsored by Flow Wallet' ? (
+                    <span className="font-mono">
+                      <s>$0.00 USD</s> <strong>FREE!</strong>
+                    </span>
                   ) : (
-                    <span className="font-mono">${chain.totalCost || '--.-'} USD</span>
+                    <span className="font-mono">
+                      ${chain.totalCost || '--.--'} USD
+                    </span>
                   )}
                 </p>
               )}
