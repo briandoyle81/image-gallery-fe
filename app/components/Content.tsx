@@ -29,6 +29,8 @@ export default function Content() {
       totalCost: undefined,
     }))
   );
+  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+  const [isLoadingPrices, setIsLoadingPrices] = useState(false);
 
   const account = useAccount();
   const queryClient = useQueryClient();
@@ -105,6 +107,7 @@ export default function Content() {
 
   useEffect(() => {
     if (uploadedBase64Image) {
+      setIsLoadingPrices(true);
       fetch('/api/getPrices', {
         method: 'POST',
         body: JSON.stringify({
@@ -112,8 +115,14 @@ export default function Content() {
         }),
       })
         .then((response) => response.json())
-        .then((data) => setCostDetails(data))
-        .catch((error) => console.error('Error fetching cost details:', error));
+        .then((data) => {
+          setCostDetails(data);
+          setIsLoadingPrices(false);
+        })
+        .catch((error) => {
+          console.error('Error fetching cost details:', error);
+          setIsLoadingPrices(false);
+        });
     }
   }, [uploadedBase64Image]);
 
@@ -145,10 +154,12 @@ export default function Content() {
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <p className="text-lg">
-          This is a fun benchmark. It is not best practice and is not a
-          production app.
-        </p>
+        <div className="mb-4">
+          <p className="text-lg">
+            This is a fun benchmark. It is not best practice and is not a
+            production app.
+          </p>
+        </div>
         <div className="flex justify-between items-center mb-8">
           <div>
             <label className="block text-sm font-medium text-gray-700">
@@ -180,49 +191,87 @@ export default function Content() {
             {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
           </button>
         </div>
-        <div className="mb-8">
-          <TransactionCostBox costDetails={costDetails} />
-        </div>
+
         {account.isConnected && (
           <div>
-            <div className="mb-4">
-              <ImageUploader
-                onImageUpload={(base64Image) =>
-                  setUploadedBase64Image(base64Image)
-                }
-              />
-              {uploadedBase64Image && (
-                <div className="mt-6 text-center">
-                  <img
-                    src={uploadedBase64Image}
-                    alt="Uploaded"
-                    className="max-w-xs mx-auto rounded-lg shadow-md"
-                  />
-                  <button
-                    onClick={handleSaveOnchain}
-                    disabled={awaitingResponse}
-                    className={`px-4 py-2 rounded-lg text-white ${
-                      !awaitingResponse
-                        ? 'bg-blue-500 hover:bg-blue-600'
-                        : 'bg-gray-300 cursor-not-allowed'
+            <div className="border-b border-gray-200 mb-4">
+              <nav className="-mb-px flex">
+                <button
+                  onClick={() => setActiveTab('upload')}
+                  className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm
+                    ${
+                      activeTab === 'upload'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                     }`}
-                  >
-                    {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
-                  </button>
+                >
+                  Upload
+                </button>
+                <button
+                  onClick={() => setActiveTab('gallery')}
+                  className={`py-4 px-1 border-b-2 font-medium text-sm
+                    ${
+                      activeTab === 'gallery'
+                        ? 'border-blue-500 text-blue-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                >
+                  Gallery
+                </button>
+              </nav>
+            </div>
+
+            {activeTab === 'upload' && (
+              <div>
+                <div className="mb-8">
+                  <TransactionCostBox
+                    costDetails={costDetails}
+                    isLoading={isLoadingPrices}
+                  />
                 </div>
-              )}
-              {writeError && (
-                <p className="text-red-500">
-                  There was an error with the last transaction:
-                </p>
-              )}
-              {writeError && (
-                <p className="text-red-500">{writeError.message}</p>
-              )}
-            </div>
-            <div className="mb-4">
-              <ImageGallery images={imageGallery} />
-            </div>
+                <div className="mb-4">
+                  <ImageUploader
+                    onImageUpload={(base64Image) =>
+                      setUploadedBase64Image(base64Image)
+                    }
+                  />
+                  {uploadedBase64Image && (
+                    <div className="mt-6 text-center">
+                      <img
+                        src={uploadedBase64Image}
+                        alt="Uploaded"
+                        className="max-w-xs mx-auto rounded-lg shadow-md"
+                      />
+                      <button
+                        onClick={handleSaveOnchain}
+                        disabled={awaitingResponse}
+                        className={`px-4 py-2 rounded-lg text-white ${
+                          !awaitingResponse
+                            ? 'bg-blue-500 hover:bg-blue-600'
+                            : 'bg-gray-300 cursor-not-allowed'
+                        }`}
+                      >
+                        {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
+                      </button>
+                    </div>
+                  )}
+                  {writeError && (
+                    <p className="text-red-500">
+                      There was an error with the last transaction:
+                    </p>
+                  )}
+                  {writeError && (
+                    <p className="text-red-500">{writeError.message}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'gallery' && (
+              <div className="mb-4">
+                <ImageGallery images={imageGallery} />
+              </div>
+            )}
           </div>
         )}
         {!account.isConnected && (

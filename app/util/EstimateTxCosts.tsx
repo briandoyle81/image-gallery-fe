@@ -144,7 +144,7 @@ export async function estimateContractCallCosts(contractDetails: {
           return {
             chainName: contractDetails.chain.name,
             logo: chainLogos[contractDetails.chain.name] || '',
-            error: `Transaction data too large for Avalanche. Maximum size: ~8KB`,
+            error: 'Max size ~8KB',
           };
         }
       }
