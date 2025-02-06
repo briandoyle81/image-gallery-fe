@@ -7,6 +7,8 @@ import AddressList from './AddressList';
 import { useQueryClient } from '@tanstack/react-query';
 import ImageGallery, { ImageGalleryImage } from './GalleryDisplay';
 import ImageUploader from './ImageUploader';
+import TransactionCostBox from './TransactionCostBox';
+import { ChainCost } from '../util/EstimateTxCosts';
 
 export default function Content() {
   const [reload, setReload] = useState(false); // TODO: Not good practice to reload all data for every transaction
@@ -15,6 +17,7 @@ export default function Content() {
   const [imageGallery, setImageGallery] = useState<ImageGalleryImage[]>([]);
   const [activeAddress, setActiveAddress] = useState<string>('');
   const [uploadedBase64Image, setUploadedBase64Image] = useState<string>('');
+  const [costDetails, setCostDetails] = useState<ChainCost[]>([]);
 
   const account = useAccount();
   const queryClient = useQueryClient();
@@ -36,6 +39,15 @@ export default function Content() {
     args: [account.address],
   });
 
+  const {
+    data: galleryData,
+    queryKey: galleryQueryKey,
+  } = useReadContract({
+    abi: personalImageGallery.abi,
+    address: activeAddress as `0x${string}`,
+    functionName: 'getImages',
+  });
+
   useEffect(() => {
     if (galleryAddressesData) {
       const newAddresses = galleryAddressesData as string[];
@@ -46,15 +58,6 @@ export default function Content() {
       }
     }
   }, [galleryAddressesData, activeAddress]);
-
-  const {
-    data: galleryData,
-    queryKey: galleryQueryKey,
-  } = useReadContract({
-    abi: personalImageGallery.abi,
-    address: activeAddress as `0x${string}`,
-    functionName: 'getImages',
-  });
 
   useEffect(() => {
     if (galleryData) {
@@ -68,18 +71,11 @@ export default function Content() {
   useEffect(() => {
     if (receipt) {
       console.log(receipt);
-      setReload(true);
-      setAwaitingResponse(false);
-    }
-  }, [receipt]);
-
-  useEffect(() => {
-    if (reload) {
-      setReload(false);
       queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
       queryClient.invalidateQueries({ queryKey: galleryQueryKey });
+      setAwaitingResponse(false);
     }
-  }, [reload, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
+  }, [receipt, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
 
   useEffect(() => {
     if (writeError) {
@@ -95,6 +91,19 @@ export default function Content() {
     }
   }, [receiptError]);
 
+  useEffect(() => {
+    if (uploadedBase64Image) {
+      // Call the API to get the cost details
+      fetch('/api/getPrices', {
+        method: 'POST',
+        body: JSON.stringify({ base64ImageStringLength: uploadedBase64Image.length }),
+      })
+        .then(response => response.json())
+        .then(data => setCostDetails(data))
+        .catch(error => console.error('Error fetching cost details:', error));
+    }
+  }, [uploadedBase64Image]);
+
   function handleCreateGallery() {
     setAwaitingResponse(true);
     writeContract({
@@ -106,9 +115,14 @@ export default function Content() {
   }
 
   function handleSetActiveAddress(address: string) {
-    setReload(true);
     setActiveAddress(address);
   }
+
+  useEffect(() => {
+    if (activeAddress) {
+      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
+    }
+  }, [activeAddress, queryClient, galleryQueryKey]);
 
   function handleSaveOnchain() {
     setAwaitingResponse(true);
@@ -122,8 +136,23 @@ export default function Content() {
 
   return (
     <div className="card gap-1">
+      <div className="flex flex-col gap-4">
+        <p className="text-lg">
+          A decentralized image gallery built on Flow blockchain. All images saved directly on-chain.
+        </p>
+        <p className="text-lg">
+          Free with gas sponsored by Flow with the Flow wallet. Sub-cent to save an image with other wallets.
+        </p>
+        <p className="text-lg">
+          This is a fun demo, not a production app.
+        </p>
+      </div>
+      <div className="mb-8">
+        <TransactionCostBox costDetails={costDetails} />
+      </div>
       {account.isConnected && (
         <div>
+
           <div className="mb-4">
             {writeError && <p className="text-red-500">There was an error with the last transaction:</p>}
             {writeError && <p className="text-red-500">{writeError.message}</p>}
