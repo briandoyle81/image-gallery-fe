@@ -11,7 +11,6 @@ import {
   bsc,
   arbitrum,
   polygon,
-  optimism,
   flowMainnet,
 } from 'wagmi/chains';
 
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     flowImageGallery,
     mainnetImageGallery,
     polygonImageGallery,
-    optimismImageGallery,
     arbitrumImageGallery,
     avalancheImageGallery,
   } = contractData;
@@ -85,16 +83,6 @@ export async function POST(request: NextRequest) {
         chain: polygon,
         address: polygonImageGallery.address,
         abi: polygonImageGallery.abi,
-        functionName: 'addImage',
-        args: ['', mockedImage],
-      })
-    );
-
-    costs.push(
-      await estimateContractCallCosts({
-        chain: optimism,
-        address: optimismImageGallery.address,
-        abi: optimismImageGallery.abi,
         functionName: 'addImage',
         args: ['', mockedImage],
       })

@@ -7,17 +7,7 @@ import {
   encodeFunctionData,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import {
-  mainnet,
-  tron,
-  bsc,
-  base,
-  arbitrum,
-  polygon,
-  optimism,
-  flowMainnet,
-  avalanche,
-} from 'wagmi/chains';
+import { avalanche } from 'wagmi/chains';
 import { chainCoinGeckoIds, chainLogos } from './ChainConstants';
 
 const WALLET_PRIVATE_KEY = process.env.DEPLOY_WALLET_1;
