@@ -34,7 +34,7 @@ const TransactionCostBox: React.FC<TransactionCostBoxProps> = ({
                   Cost: {chain.chainName === "Flow Sponsored by Flow Wallet" ? (
                     <span className="font-mono"><s>$0.00 USD</s> <strong>FREE!</strong></span>
                   ) : (
-                    <span className="font-mono">${chain.totalCost} USD</span>
+                    <span className="font-mono">${chain.totalCost || '--.-'} USD</span>
                   )}
                 </p>
               )}

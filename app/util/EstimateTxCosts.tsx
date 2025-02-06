@@ -1,6 +1,24 @@
-import { Abi, Chain, createPublicClient, createWalletClient, http, encodeFunctionData } from 'viem';
+import {
+  Abi,
+  Chain,
+  createPublicClient,
+  createWalletClient,
+  http,
+  encodeFunctionData,
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { mainnet, tron, bsc, base, arbitrum, polygon, optimism, flowMainnet, avalanche } from 'wagmi/chains';
+import {
+  mainnet,
+  tron,
+  bsc,
+  base,
+  arbitrum,
+  polygon,
+  optimism,
+  flowMainnet,
+  avalanche,
+} from 'wagmi/chains';
+import { chainCoinGeckoIds, chainLogos } from './ChainConstants';
 
 const WALLET_PRIVATE_KEY = process.env.DEPLOY_WALLET_1;
 const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
@@ -9,34 +27,10 @@ const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY;
 type PriceCache = {
   price: number;
   timestamp: number;
-}
+};
 
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 let priceCache: Record<string, PriceCache> = {};
-
-const chainCoinGeckoIds: Record<string, string> = {
-  [mainnet.name]: 'ethereum',
-  [tron.name]: 'tron',
-  [bsc.name]: 'binancecoin',
-  [base.name]: 'ethereum', // Base uses ETH
-  [arbitrum.name]: 'ethereum', // Arbitrum uses ETH
-  [avalanche.name]: 'avalanche-2',
-  [polygon.name]: 'matic-network',
-  [optimism.name]: 'ethereum', // Optimism uses ETH
-  [flowMainnet.name]: 'flow', // Make sure this matches CoinGecko's ID
-};
-
-const chainLogos: Record<string, string> = {
-  [mainnet.name]: '/chain-logos/ethereum-eth-logo.png',
-  [tron.name]: '/chain-logos/tron-trx-logo.png',
-  [bsc.name]: '/chain-logos/binance-coin-bnb-logo.png',
-  [base.name]: '/chain-logos/Base_Network_Logo.png',
-  [arbitrum.name]: '/chain-logos/arbitrum-arb-logo.png',
-  [avalanche.name]: '/chain-logos/avalanche-avax-logo.png',
-  [polygon.name]: '/chain-logos/polygon-matic-logo.png',
-  [optimism.name]: '/chain-logos/optimism-ethereum-op-logo.png',
-  [flowMainnet.name]: '/chain-logos/flow-flow-logo.png',
-};
 
 // Update the Avalanche chain configuration with Ankr's RPC URL
 const avalancheChain = {
@@ -60,7 +54,7 @@ async function getTokenPriceInUSD(chainName: string): Promise<number> {
 
   // Check cache first
   const cached = priceCache[geckoId];
-  if (cached && (Date.now() - cached.timestamp) < CACHE_DURATION) {
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
     return cached.price;
   }
 
@@ -75,15 +69,17 @@ async function getTokenPriceInUSD(chainName: string): Promise<number> {
     const response = await fetch(url, {
       headers: {
         'x-cg-pro-api-key': COINGECKO_API_KEY,
-        'Accept': 'application/json'
-      }
+        Accept: 'application/json',
+      },
     });
 
     // Check if the response is ok
     if (!response.ok) {
       const errorText = await response.text();
       console.error('CoinGecko API error details:', errorText);
-      throw new Error(`CoinGecko API error: ${response.status} ${response.statusText} - ${errorText}`);
+      throw new Error(
+        `CoinGecko API error: ${response.status} ${response.statusText} - ${errorText}`
+      );
     }
 
     // Parse the response
@@ -100,7 +96,7 @@ async function getTokenPriceInUSD(chainName: string): Promise<number> {
     // Update cache
     priceCache[geckoId] = {
       price,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     return price;
@@ -122,15 +118,13 @@ export type ChainCost = {
   error?: string;
 };
 
-export async function estimateContractCallCosts(
-  contractDetails: {
-    address: `0x${string}`;
-    abi: Abi;
-    functionName: string;
-    args?: any[];
-    chain: Chain;
-  }
-): Promise<ChainCost> {
+export async function estimateContractCallCosts(contractDetails: {
+  address: `0x${string}`;
+  abi: Abi;
+  functionName: string;
+  args?: any[];
+  chain: Chain;
+}): Promise<ChainCost> {
   if (!WALLET_PRIVATE_KEY) {
     throw new Error('WALLET_PRIVATE_KEY is not set');
   }
@@ -148,9 +142,11 @@ export async function estimateContractCallCosts(
     // Check for Avalanche size limits
     if (contractDetails.chain.id === avalanche.id) {
       // Check args length - assuming the base64 string is the second argument
-      if (contractDetails.args && contractDetails.args[1] &&
-        typeof contractDetails.args[1] === 'string') {
-
+      if (
+        contractDetails.args &&
+        contractDetails.args[1] &&
+        typeof contractDetails.args[1] === 'string'
+      ) {
         // Avalanche has an 8M gas limit
         // Being conservative, let's limit to 8KB to account for other transaction costs
         const base64String = contractDetails.args[1];
@@ -164,7 +160,10 @@ export async function estimateContractCallCosts(
       }
     }
 
-    const chain = contractDetails.chain.id === avalanche.id ? avalancheChain : contractDetails.chain;
+    const chain =
+      contractDetails.chain.id === avalanche.id
+        ? avalancheChain
+        : contractDetails.chain;
 
     console.log('Using chain config:', chain);
 
@@ -208,22 +207,27 @@ export async function estimateContractCallCosts(
     console.error(error);
 
     // Show full error only for Avalanche's size error
-    if (contractDetails.chain.id === avalanche.id &&
+    if (
+      contractDetails.chain.id === avalanche.id &&
       error instanceof Error &&
-      error.message?.includes('size')) {
+      error.message?.includes('size')
+    ) {
       return {
         chainName: contractDetails.chain.name,
         logo: chainLogos[contractDetails.chain.name] || '',
-        error: error.message
+        error: error.message,
       };
     }
 
     // Simplified error messages for all other cases
-    if (error instanceof Error && error.message?.includes('Execution reverted')) {
+    if (
+      error instanceof Error &&
+      error.message?.includes('Execution reverted')
+    ) {
       return {
         chainName: contractDetails.chain.name,
         logo: chainLogos[contractDetails.chain.name] || '',
-        error: 'Execution reverted for an unknown reason'
+        error: 'Execution reverted for an unknown reason',
       };
     }
 
@@ -231,14 +235,14 @@ export async function estimateContractCallCosts(
       return {
         chainName: contractDetails.chain.name,
         logo: chainLogos[contractDetails.chain.name] || '',
-        error: 'Unable to get price from CoinGecko'
+        error: 'Unable to get price from CoinGecko',
       };
     }
 
     return {
       chainName: contractDetails.chain.name,
       logo: chainLogos[contractDetails.chain.name] || '',
-      error: 'Unexpected error'
+      error: 'Unexpected error',
     };
   }
 }

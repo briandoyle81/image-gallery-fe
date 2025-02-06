@@ -1,23 +1,34 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useAccount, useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
+import {
+  useAccount,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
 import useContracts from '../contracts/contracts';
-import AddressList from './AddressList';
 import { useQueryClient } from '@tanstack/react-query';
 import ImageGallery, { ImageGalleryImage } from './GalleryDisplay';
 import ImageUploader from './ImageUploader';
 import TransactionCostBox from './TransactionCostBox';
 import { ChainCost } from '../util/EstimateTxCosts';
+import { chainLogos } from '../util/ChainConstants';
 
 export default function Content() {
-  const [reload, setReload] = useState(false); // TODO: Not good practice to reload all data for every transaction
+  const [reload, setReload] = useState(false);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
   const [galleryAddresses, setGalleryAddresses] = useState<string[]>([]);
   const [imageGallery, setImageGallery] = useState<ImageGalleryImage[]>([]);
   const [activeAddress, setActiveAddress] = useState<string>('');
   const [uploadedBase64Image, setUploadedBase64Image] = useState<string>('');
-  const [costDetails, setCostDetails] = useState<ChainCost[]>([]);
+  const [costDetails, setCostDetails] = useState<ChainCost[]>(
+    Object.entries(chainLogos).map(([chainName, logo]) => ({
+      chainName,
+      logo,
+      totalCost: '0',
+    }))
+  );
 
   const account = useAccount();
   const queryClient = useQueryClient();
@@ -29,20 +40,15 @@ export default function Content() {
     hash: data,
   });
 
-  const {
-    data: galleryAddressesData,
-    queryKey: galleryAddressesQueryKey,
-  } = useReadContract({
-    abi: personalImageGalleryFactory.abi,
-    address: personalImageGalleryFactory.address,
-    functionName: 'getGalleries',
-    args: [account.address],
-  });
+  const { data: galleryAddressesData, queryKey: galleryAddressesQueryKey } =
+    useReadContract({
+      abi: personalImageGalleryFactory.abi,
+      address: personalImageGalleryFactory.address,
+      functionName: 'getGalleries',
+      args: [account.address],
+    });
 
-  const {
-    data: galleryData,
-    queryKey: galleryQueryKey,
-  } = useReadContract({
+  const { data: galleryData, queryKey: galleryQueryKey } = useReadContract({
     abi: personalImageGallery.abi,
     address: activeAddress as `0x${string}`,
     functionName: 'getImages',
@@ -62,7 +68,6 @@ export default function Content() {
   useEffect(() => {
     if (galleryData) {
       const newImages = galleryData as ImageGalleryImage[];
-      // reverse the array so the latest images are shown first
       newImages.reverse();
       setImageGallery(newImages);
     }
@@ -71,11 +76,18 @@ export default function Content() {
   useEffect(() => {
     if (receipt) {
       console.log(receipt);
-      queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
+      setReload(true);
       setAwaitingResponse(false);
     }
-  }, [receipt, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
+  }, [receipt]);
+
+  useEffect(() => {
+    if (reload) {
+      setReload(false);
+      queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
+      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
+    }
+  }, [reload, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
 
   useEffect(() => {
     if (writeError) {
@@ -93,14 +105,15 @@ export default function Content() {
 
   useEffect(() => {
     if (uploadedBase64Image) {
-      // Call the API to get the cost details
       fetch('/api/getPrices', {
         method: 'POST',
-        body: JSON.stringify({ base64ImageStringLength: uploadedBase64Image.length }),
+        body: JSON.stringify({
+          base64ImageStringLength: uploadedBase64Image.length,
+        }),
       })
-        .then(response => response.json())
-        .then(data => setCostDetails(data))
-        .catch(error => console.error('Error fetching cost details:', error));
+        .then((response) => response.json())
+        .then((data) => setCostDetails(data))
+        .catch((error) => console.error('Error fetching cost details:', error));
     }
   }, [uploadedBase64Image]);
 
@@ -115,14 +128,9 @@ export default function Content() {
   }
 
   function handleSetActiveAddress(address: string) {
+    setReload(true);
     setActiveAddress(address);
   }
-
-  useEffect(() => {
-    if (activeAddress) {
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
-    }
-  }, [activeAddress, queryClient, galleryQueryKey]);
 
   function handleSaveOnchain() {
     setAwaitingResponse(true);
@@ -137,65 +145,96 @@ export default function Content() {
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <p className="text-lg">
-          A decentralized image gallery built on Flow blockchain. All images saved directly on-chain.
-        </p>
-        <p className="text-lg">
-          Free with gas sponsored by Flow with the Flow wallet. Sub-cent to save an image with other wallets.
-        </p>
-        <p className="text-lg">
-          This is a fun demo, not a production app.
-        </p>
-      </div>
-      <div className="mb-8">
-        <TransactionCostBox costDetails={costDetails} />
-      </div>
-      {account.isConnected && (
-        <div>
-
-          <div className="mb-4">
-            {writeError && <p className="text-red-500">There was an error with the last transaction:</p>}
-            {writeError && <p className="text-red-500">{writeError.message}</p>}
-            <button onClick={handleCreateGallery} disabled={awaitingResponse}
-              className={`px-4 py-2 rounded-lg text-white ${!awaitingResponse
-                ? "bg-blue-500 hover:bg-blue-600"
-                : "bg-gray-300 cursor-not-allowed"
-                }`}>
-              {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
-            </button>
-            {galleryAddresses.length > 0 && (
-              <div>
-                <AddressList addresses={galleryAddresses} handleSetActiveAddress={handleSetActiveAddress} />
-                <ImageUploader setUploadedBase64Image={setUploadedBase64Image} />
-                {uploadedBase64Image && (
-                  <div className="mt-6 text-center">
-                    <img
-                      src={uploadedBase64Image}
-                      alt="Uploaded"
-                      className="max-w-xs mx-auto rounded-lg shadow-md"
-                    />
-                    <button onClick={handleSaveOnchain} disabled={awaitingResponse}
-                      className={`px-4 py-2 rounded-lg text-white ${!awaitingResponse
-                        ? "bg-blue-500 hover:bg-blue-600"
-                        : "bg-gray-300 cursor-not-allowed"
-                        }`}>
-                      {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div className="mb-4">
-            <ImageGallery images={imageGallery} />
-          </div>
+        <div className="mb-8">
+          <p className="text-lg">
+            This is a fun benchmark. It is not best practice and is not a
+            production app.
+          </p>
         </div>
-      )}
-      {!account.isConnected && (
-        <div className="text-center">
-          <p className="text-xl font-bold">Connect your wallet to view your galleries</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Select a Gallery
+            </label>
+            <select
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
+              focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+              sm:text-sm rounded-md"
+              value={activeAddress}
+              onChange={(e) => handleSetActiveAddress(e.target.value)}
+            >
+              {galleryAddresses.map((address) => (
+                <option key={address} value={address}>
+                  {address}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button
+            onClick={handleCreateGallery}
+            disabled={awaitingResponse}
+            className={`px-4 py-2 rounded-lg text-white ${
+              !awaitingResponse
+                ? 'bg-blue-500 hover:bg-blue-600'
+                : 'bg-gray-300 cursor-not-allowed'
+            }`}
+          >
+            {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
+          </button>
         </div>
-      )}
+        <div className="mb-8">
+          <TransactionCostBox costDetails={costDetails} />
+        </div>
+        {account.isConnected && (
+          <div>
+            <div className="mb-4">
+              <ImageUploader
+                onImageUpload={(base64Image) =>
+                  setUploadedBase64Image(base64Image)
+                }
+              />
+              {uploadedBase64Image && (
+                <div className="mt-6 text-center">
+                  <img
+                    src={uploadedBase64Image}
+                    alt="Uploaded"
+                    className="max-w-xs mx-auto rounded-lg shadow-md"
+                  />
+                  <button
+                    onClick={handleSaveOnchain}
+                    disabled={awaitingResponse}
+                    className={`px-4 py-2 rounded-lg text-white ${
+                      !awaitingResponse
+                        ? 'bg-blue-500 hover:bg-blue-600'
+                        : 'bg-gray-300 cursor-not-allowed'
+                    }`}
+                  >
+                    {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
+                  </button>
+                </div>
+              )}
+              {writeError && (
+                <p className="text-red-500">
+                  There was an error with the last transaction:
+                </p>
+              )}
+              {writeError && (
+                <p className="text-red-500">{writeError.message}</p>
+              )}
+            </div>
+            <div className="mb-4">
+              <ImageGallery images={imageGallery} />
+            </div>
+          </div>
+        )}
+        {!account.isConnected && (
+          <div className="text-center">
+            <p className="text-xl font-bold">
+              Connect your wallet to view your galleries
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

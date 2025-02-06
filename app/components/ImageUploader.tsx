@@ -1,51 +1,51 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-type ImageUploaderProps = {
-  setUploadedBase64Image: (base64: string) => void; // Function to set the uploaded base64 image
-};
+interface ImageUploaderProps {
+  onImageUpload: (base64Image: string) => void;
+}
 
-const ImageUploader: React.FC<ImageUploaderProps> = ({
-  setUploadedBase64Image,
-}) => {
+export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
   const [error, setError] = useState<string | null>(null);
-  const [uploadedImageSize, setUploadedImageSize] = useState<number | null>(null);
+  const [uploadedImageSize, setUploadedImageSize] = useState<number | null>(
+    null
+  );
 
   const getStringSizeInKB = (str: string) => {
     const blob = new Blob([str]); // Create a Blob from the string
     const sizeInBytes = blob.size; // Size in bytes
     const sizeInKB = sizeInBytes / 1024; // Convert to KB
     return sizeInKB;
-  }
+  };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (!file) {
-      setError("No file selected");
+      setError('No file selected');
       return;
     }
 
-    if (!file.type.startsWith("image/")) {
-      setError("Only image files are allowed");
+    if (!file.type.startsWith('image/')) {
+      setError('Only image files are allowed');
       return;
     }
 
     if (file.size > 32 * 1024) {
-      setError("Image size must be 32KB or smaller");
+      setError('Image size must be 32KB or smaller');
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
       const base64 = reader.result as string;
-      setUploadedBase64Image(base64);
+      onImageUpload(base64);
       setUploadedImageSize(getStringSizeInKB(base64));
       setError(null);
     };
     reader.onerror = () => {
-      setError("Failed to read file");
+      setError('Failed to read file');
     };
     reader.readAsDataURL(file);
   };
@@ -71,15 +71,17 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
           className="hidden"
         />
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        {(uploadedImageSize && uploadedImageSize > 40) && (
+        {uploadedImageSize && uploadedImageSize > 40 && (
           <div>
-            <p className="text-red-500 text-sm">Warning: Base64 size is {uploadedImageSize}KB</p>
-            <p className="text-red-500 text-sm">Size limit for image + description is ~41.18 KB</p>
+            <p className="text-red-500 text-sm">
+              Warning: Base64 size is {uploadedImageSize}KB
+            </p>
+            <p className="text-red-500 text-sm">
+              Size limit for image + description is ~41.18 KB
+            </p>
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default ImageUploader;
+}
