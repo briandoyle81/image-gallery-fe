@@ -2,12 +2,21 @@
 
 import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createConfig, http, WagmiProvider, webSocket } from 'wagmi';
+import { createConfig, http, WagmiProvider } from 'wagmi';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import {
-  RainbowKitProvider,
-} from '@rainbow-me/rainbowkit';
-import { base, flowMainnet } from 'viem/chains';
-import { coinbaseWallet, metaMaskWallet, walletConnectWallet } from '@rainbow-me/rainbowkit/wallets';
+  base,
+  flowMainnet,
+  bsc,
+  arbitrum,
+  avalanche,
+  polygon,
+} from 'viem/chains';
+import {
+  coinbaseWallet,
+  metaMaskWallet,
+  walletConnectWallet,
+} from '@rainbow-me/rainbowkit/wallets';
 import { flowWallet } from './flowWallet';
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID as string;
@@ -21,7 +30,7 @@ const connectors = connectorsForWallets(
     {
       groupName: 'Other',
       wallets: [metaMaskWallet, coinbaseWallet, walletConnectWallet],
-    }
+    },
   ],
   {
     appName: 'Onchain Image Gallery',
@@ -31,12 +40,16 @@ const connectors = connectorsForWallets(
 
 const wagmiConfig = createConfig({
   connectors,
-  chains: [flowMainnet, base],
+  chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
   ssr: true,
   transports: {
     [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     [base.id]: http(),
-  }
+    [arbitrum.id]: http(),
+    [avalanche.id]: http(),
+    [polygon.id]: http(),
+    [bsc.id]: http(),
+  },
 });
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -45,9 +58,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          {children}
-        </RainbowKitProvider>
+        <RainbowKitProvider>{children}</RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

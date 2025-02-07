@@ -6,6 +6,7 @@ import {
   useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
+  useChainId,
 } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import { useQueryClient } from '@tanstack/react-query';
@@ -14,13 +15,21 @@ import ImageUploader from './ImageUploader';
 import TransactionCostBox from './TransactionCostBox';
 import { ChainCost } from '../util/EstimateTxCosts';
 import { chainLogos } from '../util/ChainConstants';
+import {
+  flowMainnet,
+  polygon,
+  base,
+  arbitrum,
+  avalanche,
+  bsc,
+} from 'viem/chains';
 
 export default function Content() {
   const [reload, setReload] = useState(false);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
   const [galleryAddresses, setGalleryAddresses] = useState<string[]>([]);
   const [imageGallery, setImageGallery] = useState<ImageGalleryImage[]>([]);
-  const [activeAddress, setActiveAddress] = useState<string>('');
+  const [activeAddress, setActiveAddress] = useState<string | null>(null);
   const [uploadedBase64Image, setUploadedBase64Image] = useState<string>('');
   const [costDetails, setCostDetails] = useState<ChainCost[]>(
     Object.entries(chainLogos).map(([chainName, logo]) => ({
@@ -34,7 +43,39 @@ export default function Content() {
 
   const account = useAccount();
   const queryClient = useQueryClient();
-  const { personalImageGallery, personalImageGalleryFactory } = useContracts();
+  const {
+    personalImageGallery,
+    flowImageGalleryFactory,
+    polygonImageGalleryFactory,
+    baseImageGalleryFactory,
+    arbitrumImageGalleryFactory,
+    avalancheImageGalleryFactory,
+  } = useContracts();
+
+  const chainId = useChainId();
+
+  function getCurrentFactory() {
+    if (account.chainId) {
+      switch (account.chainId) {
+        case flowMainnet.id:
+          return flowImageGalleryFactory;
+        case polygon.id:
+          return polygonImageGalleryFactory;
+        case base.id:
+          return baseImageGalleryFactory;
+        case arbitrum.id:
+          return arbitrumImageGalleryFactory;
+        case avalanche.id:
+          return avalancheImageGalleryFactory;
+        // case bsc.id:
+        //   return bscImageGalleryFactory;
+        default:
+          throw new Error('Unsupported chain ' + account.chainId);
+      }
+    } else {
+      return flowImageGalleryFactory;
+    }
+  }
 
   const { data, writeContract, error: writeError } = useWriteContract();
 
@@ -44,8 +85,8 @@ export default function Content() {
 
   const { data: galleryAddressesData, queryKey: galleryAddressesQueryKey } =
     useReadContract({
-      abi: personalImageGalleryFactory.abi,
-      address: personalImageGalleryFactory.address,
+      abi: getCurrentFactory().abi,
+      address: getCurrentFactory().address,
       functionName: 'getGalleries',
       args: [account.address],
     });
@@ -61,7 +102,8 @@ export default function Content() {
       const newAddresses = galleryAddressesData as string[];
       newAddresses.reverse();
       setGalleryAddresses(newAddresses);
-      if (activeAddress === '') {
+      if (activeAddress === null && newAddresses.length > 0) {
+        console.log('Setting active address to first gallery', newAddresses);
         setActiveAddress(newAddresses[0]);
       }
     }
@@ -126,11 +168,16 @@ export default function Content() {
     }
   }, [uploadedBase64Image]);
 
+  useEffect(() => {
+    // Refetch gallery addresses when network changes
+    queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
+  }, [chainId, queryClient, galleryAddressesQueryKey]);
+
   function handleCreateGallery() {
     setAwaitingResponse(true);
     writeContract({
-      abi: personalImageGalleryFactory.abi,
-      address: personalImageGalleryFactory.address,
+      abi: getCurrentFactory().abi,
+      address: getCurrentFactory().address,
       functionName: 'createPersonalImageGallery',
       args: [account.address],
     });
@@ -139,6 +186,7 @@ export default function Content() {
   function handleSetActiveAddress(address: string) {
     setReload(true);
     setActiveAddress(address);
+    console.log(activeAddress);
   }
 
   function handleSaveOnchain() {
@@ -169,7 +217,7 @@ export default function Content() {
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
               focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
               sm:text-sm rounded-md"
-              value={activeAddress}
+              value={activeAddress || ''}
               onChange={(e) => handleSetActiveAddress(e.target.value)}
             >
               {galleryAddresses.map((address) => (
@@ -244,15 +292,20 @@ export default function Content() {
                       />
                       <button
                         onClick={handleSaveOnchain}
-                        disabled={awaitingResponse}
+                        disabled={awaitingResponse || activeAddress === null}
                         className={`px-4 py-2 rounded-lg text-white ${
-                          !awaitingResponse
+                          !awaitingResponse && activeAddress !== null
                             ? 'bg-blue-500 hover:bg-blue-600'
                             : 'bg-gray-300 cursor-not-allowed'
                         }`}
                       >
                         {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
                       </button>
+                      {activeAddress === null && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          Create a gallery to save image onchain
+                        </p>
+                      )}
                     </div>
                   )}
                   {writeError && (
