@@ -186,7 +186,7 @@ export default function Content() {
   function handleSetActiveAddress(address: string) {
     setReload(true);
     setActiveAddress(address);
-    console.log(activeAddress);
+    console.log(address);
   }
 
   function handleSaveOnchain() {
@@ -288,7 +288,7 @@ export default function Content() {
                       <img
                         src={uploadedBase64Image}
                         alt="Uploaded"
-                        className="max-w-xs mx-auto rounded-lg shadow-md"
+                        className="max-w-xs mx-auto rounded-lg shadow-md mb-4"
                       />
                       <button
                         onClick={handleSaveOnchain}

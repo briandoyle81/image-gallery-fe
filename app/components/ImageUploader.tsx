@@ -19,7 +19,53 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
     return sizeInKB;
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const resizeAndConvertToJpeg = async (
+    base64Str: string,
+    maxDimension: number = 256
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions maintaining aspect ratio
+        if (width > height) {
+          if (width > maxDimension) {
+            height = height * (maxDimension / width);
+            width = maxDimension;
+          }
+        } else {
+          if (height > maxDimension) {
+            width = width * (maxDimension / height);
+            height = maxDimension;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Start with high quality and reduce until size is under 32KB
+        let quality = 1.0;
+        let result = canvas.toDataURL('image/jpeg', quality);
+
+        while (result.length > 32 * 1024 && quality > 0.1) {
+          quality -= 0.1;
+          result = canvas.toDataURL('image/jpeg', quality);
+        }
+
+        resolve(result);
+      };
+    });
+  };
+
+  const handleImageUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
 
     if (!file) {
@@ -32,16 +78,20 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
       return;
     }
 
-    if (file.size > 32 * 1024) {
-      setError('Image size must be 32KB or smaller');
-      return;
-    }
-
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const base64 = reader.result as string;
-      onImageUpload(base64);
-      setUploadedImageSize(getStringSizeInKB(base64));
+      const sizeInKB = getStringSizeInKB(base64);
+
+      let finalImage;
+      if (sizeInKB > 32) {
+        finalImage = await resizeAndConvertToJpeg(base64);
+      } else {
+        finalImage = await resizeAndConvertToJpeg(base64); // Convert to JPEG without resizing
+      }
+
+      onImageUpload(finalImage);
+      setUploadedImageSize(getStringSizeInKB(finalImage));
       setError(null);
     };
     reader.onerror = () => {
