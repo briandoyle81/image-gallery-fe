@@ -105,7 +105,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
       <div className="flex flex-col items-center space-y-4">
         <br />
         <div className="text-center">
-          <p className="text-sm text-gray-500">Max upload size: 32KB</p>
+          <p className="text-sm text-gray-500">Max upload size: 32KB - Larger images will be resized</p>
         </div>
         <label
           htmlFor="image-upload"
