@@ -169,9 +169,28 @@ export default function Content() {
   }, [uploadedBase64Image]);
 
   useEffect(() => {
-    // Refetch gallery addresses when network changes
-    queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
-  }, [chainId, queryClient, galleryAddressesQueryKey]);
+    // Reset state when network changes
+    setImageGallery([]);
+    setGalleryAddresses([]);
+    setActiveAddress(null);
+  }, [chainId]);
+
+  useEffect(() => {
+    // Refetch gallery addresses when activeAddress is cleared
+    if (activeAddress === null) {
+      queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
+    }
+  }, [activeAddress, queryClient, galleryAddressesQueryKey]);
+
+  useEffect(() => {
+    // Reset state when wallet disconnects
+    if (!account.isConnected) {
+      setImageGallery([]);
+      setGalleryAddresses([]);
+      setActiveAddress(null);
+      setUploadedBase64Image('');
+    }
+  }, [account.isConnected]);
 
   function handleCreateGallery() {
     setAwaitingResponse(true);

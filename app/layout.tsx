@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'FlowCam',
+  title: 'FlowtoBooth',
   description: 'Save images to your own personal gallery onchain',
 };
 
