@@ -250,17 +250,29 @@ export default function Content() {
                 ))}
               </select>
             </div>
-            <button
-              onClick={handleCreateGallery}
-              disabled={awaitingResponse}
-              className={`px-4 py-2 rounded-lg text-white ${
-                !awaitingResponse
-                  ? 'bg-blue-500 hover:bg-blue-600'
-                  : 'bg-gray-300 cursor-not-allowed'
-              }`}
-            >
-              {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
-            </button>
+            <div className="flex gap-2">
+              {activeAddress && (
+                <a
+                  href={`https://evm.flowscan.io/address/${activeAddress}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600"
+                >
+                  View Contract
+                </a>
+              )}
+              <button
+                onClick={handleCreateGallery}
+                disabled={awaitingResponse}
+                className={`px-4 py-2 rounded-lg text-white ${
+                  !awaitingResponse
+                    ? 'bg-blue-500 hover:bg-blue-600'
+                    : 'bg-gray-300 cursor-not-allowed'
+                }`}
+              >
+                {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
+              </button>
+            </div>
           </div>
         )}
 
