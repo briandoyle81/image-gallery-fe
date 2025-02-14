@@ -42,7 +42,6 @@ const wagmiConfig = createConfig({
   connectors,
   chains: [flowMainnet, base, arbitrum, avalanche, polygon],
   ssr: true,
-  multiInjectedProviderDiscovery: false,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
