@@ -228,37 +228,39 @@ export default function Content() {
             production app.
           </p>
         </div>
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Select a Gallery
-            </label>
-            <select
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
-              focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-              sm:text-sm rounded-md"
-              value={activeAddress || ''}
-              onChange={(e) => handleSetActiveAddress(e.target.value)}
+        {account.isConnected && (
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Select a Gallery
+              </label>
+              <select
+                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
+                focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                sm:text-sm rounded-md"
+                value={activeAddress || ''}
+                onChange={(e) => handleSetActiveAddress(e.target.value)}
+              >
+                {galleryAddresses.map((address) => (
+                  <option key={address} value={address}>
+                    {address}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleCreateGallery}
+              disabled={awaitingResponse}
+              className={`px-4 py-2 rounded-lg text-white ${
+                !awaitingResponse
+                  ? 'bg-blue-500 hover:bg-blue-600'
+                  : 'bg-gray-300 cursor-not-allowed'
+              }`}
             >
-              {galleryAddresses.map((address) => (
-                <option key={address} value={address}>
-                  {address}
-                </option>
-              ))}
-            </select>
+              {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
+            </button>
           </div>
-          <button
-            onClick={handleCreateGallery}
-            disabled={awaitingResponse}
-            className={`px-4 py-2 rounded-lg text-white ${
-              !awaitingResponse
-                ? 'bg-blue-500 hover:bg-blue-600'
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
-          >
-            {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
-          </button>
-        </div>
+        )}
 
         {account.isConnected && (
           <div>
