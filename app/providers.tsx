@@ -7,13 +7,13 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import {
   base,
   flowMainnet,
-  bsc,
+  // bsc,
   arbitrum,
   avalanche,
   polygon,
 } from 'viem/chains';
 import {
-  coinbaseWallet,
+  // coinbaseWallet,
   metaMaskWallet,
   walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
@@ -40,8 +40,9 @@ const connectors = connectorsForWallets(
 
 const wagmiConfig = createConfig({
   connectors,
-  chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
+  chains: [flowMainnet, base, arbitrum, avalanche, polygon],
   ssr: true,
+  multiInjectedProviderDiscovery: false,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
@@ -50,7 +51,7 @@ const wagmiConfig = createConfig({
     [arbitrum.id]: http(),
     [avalanche.id]: http(),
     [polygon.id]: http(),
-    [bsc.id]: http(),
+    // [bsc.id]: http(),
   },
 });
 
@@ -60,7 +61,9 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>{children}</RainbowKitProvider>
+        <RainbowKitProvider modalSize="compact">
+          {children}
+        </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

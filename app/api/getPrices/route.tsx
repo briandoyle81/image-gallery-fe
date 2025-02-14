@@ -8,7 +8,7 @@ import {
   mainnet,
   avalanche,
   base,
-  bsc,
+  // bsc,
   arbitrum,
   polygon,
   flowMainnet,
@@ -31,7 +31,7 @@ function mockBase64StringWithAs(length: number): string {
 export async function POST(request: NextRequest) {
   const {
     baseImageGallery,
-    bnbImageGallery,
+    // bnbImageGallery,
     flowImageGallery,
     mainnetImageGallery,
     polygonImageGallery,
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
 
     costs.push({
       chainName: 'Flow Sponsored by Flow Wallet',
-      logo: 'https://cryptologos.cc/logos/flow-flow-logo.png',
+      logo: '/chain-logos/flow-flow-logo.png',
       totalCost: '0.00000',
     });
 

@@ -20,7 +20,7 @@ type PriceCache = {
 };
 
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
-let priceCache: Record<string, PriceCache> = {};
+const priceCache: Record<string, PriceCache> = {};
 
 // Update the Avalanche chain configuration with Ankr's RPC URL
 const avalancheChain = {
@@ -112,7 +112,7 @@ export async function estimateContractCallCosts(contractDetails: {
   address: `0x${string}`;
   abi: Abi;
   functionName: string;
-  args?: any[];
+  args: [string, string];  // Always two strings: description and base64 image
   chain: Chain;
 }): Promise<ChainCost> {
   if (!WALLET_PRIVATE_KEY) {

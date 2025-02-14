@@ -21,8 +21,9 @@ import {
   base,
   arbitrum,
   avalanche,
-  bsc,
+  // bsc,
 } from 'viem/chains';
+import Image from 'next/image';
 
 export default function Content() {
   const [reload, setReload] = useState(false);
@@ -304,11 +305,15 @@ export default function Content() {
                   />
                   {uploadedBase64Image && (
                     <div className="mt-6 text-center">
-                      <img
-                        src={uploadedBase64Image}
-                        alt="Uploaded"
-                        className="max-w-xs mx-auto rounded-lg shadow-md mb-4"
-                      />
+                      <div className="relative w-64 h-64 mx-auto mb-4">
+                        <Image
+                          src={uploadedBase64Image}
+                          alt="Uploaded"
+                          fill
+                          className="object-contain rounded-lg"
+                          sizes="(max-width: 768px) 100vw, 256px"
+                        />
+                      </div>
                       <button
                         onClick={handleSaveOnchain}
                         disabled={awaitingResponse || activeAddress === null}
