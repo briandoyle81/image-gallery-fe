@@ -41,6 +41,7 @@ export default function Content() {
   );
   const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
 
   const account = useAccount();
   const queryClient = useQueryClient();
@@ -123,6 +124,7 @@ export default function Content() {
       console.log(receipt);
       setReload(true);
       setAwaitingResponse(false);
+      setUploadSuccess(true);
     }
   }, [receipt]);
 
@@ -301,9 +303,10 @@ export default function Content() {
                 </div>
                 <div className="mb-4">
                   <ImageUploader
-                    onImageUpload={(base64Image) =>
-                      setUploadedBase64Image(base64Image)
-                    }
+                    onImageUpload={(base64Image) => {
+                      setUploadedBase64Image(base64Image);
+                      setUploadSuccess(false);
+                    }}
                   />
                   {uploadedBase64Image && (
                     <div className="mt-6 text-center">
@@ -316,17 +319,29 @@ export default function Content() {
                           sizes="(max-width: 768px) 100vw, 256px"
                         />
                       </div>
-                      <button
-                        onClick={handleSaveOnchain}
-                        disabled={awaitingResponse || activeAddress === null}
-                        className={`px-4 py-2 rounded-lg text-white ${
-                          !awaitingResponse && activeAddress !== null
-                            ? 'bg-blue-500 hover:bg-blue-600'
-                            : 'bg-gray-300 cursor-not-allowed'
-                        }`}
-                      >
-                        {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
-                      </button>
+                      {uploadSuccess ? (
+                        <div className="flex items-center justify-center gap-2 text-green-600">
+                          <span>✅</span>
+                          <button
+                            onClick={() => setActiveTab('gallery')}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            View Image in Gallery
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={handleSaveOnchain}
+                          disabled={awaitingResponse || activeAddress === null}
+                          className={`px-4 py-2 rounded-lg text-white ${
+                            !awaitingResponse && activeAddress !== null
+                              ? 'bg-blue-500 hover:bg-blue-600'
+                              : 'bg-gray-300 cursor-not-allowed'
+                          }`}
+                        >
+                          {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
+                        </button>
+                      )}
                       {activeAddress === null && (
                         <p className="text-sm text-gray-500 mt-2">
                           Create a gallery to save image onchain
