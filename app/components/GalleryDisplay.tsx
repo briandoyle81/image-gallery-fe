@@ -1,6 +1,7 @@
 'use client';
 
 import React from "react";
+import Image from 'next/image';
 
 export type ImageGalleryImage = {
   description: string;
@@ -35,11 +36,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
               className="border border-gray-200 rounded-lg overflow-hidden shadow-md"
             >
               {isValidBase64Image ? (
-                <img
-                  src={image.base64EncodedImage}
-                  alt={image.description || `Image ${index + 1}`}
-                  className="w-full h-auto object-cover"
-                />
+                <div className="relative w-full aspect-square">
+                  <Image
+                    src={image.base64EncodedImage}
+                    alt={image.description || `Image ${index + 1}`}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  />
+                </div>
               ) : (
                 <div className="p-4 text-center text-red-500">
                   Invalid image data
