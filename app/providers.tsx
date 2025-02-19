@@ -39,7 +39,7 @@ const connectors = connectorsForWallets(
 
 const wagmiConfig = createConfig({
   connectors,
-  chains: [flowMainnet, base, arbitrum, avalanche, polygon],
+  chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
   ssr: true,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),

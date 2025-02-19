@@ -21,7 +21,7 @@ import {
   base,
   arbitrum,
   avalanche,
-  // bsc,
+  bsc,
 } from 'viem/chains';
 import Image from 'next/image';
 
@@ -52,6 +52,7 @@ export default function Content() {
     baseImageGalleryFactory,
     arbitrumImageGalleryFactory,
     avalancheImageGalleryFactory,
+    bscImageGalleryFactory,
   } = useContracts();
 
   const chainId = useChainId();
@@ -69,8 +70,8 @@ export default function Content() {
           return arbitrumImageGalleryFactory;
         case avalanche.id:
           return avalancheImageGalleryFactory;
-        // case bsc.id:
-        //   return bscImageGalleryFactory;
+        case bsc.id:
+          return bscImageGalleryFactory;
         default:
           throw new Error('Unsupported chain ' + account.chainId);
       }
@@ -107,7 +108,12 @@ export default function Content() {
       if (activeAddress === null && newAddresses.length > 0) {
         console.log('Setting active address to first gallery', newAddresses);
         setActiveAddress(newAddresses[0]);
+      } else if (newAddresses.length === 0) {
+        setActiveAddress(null);
       }
+    } else {
+      setGalleryAddresses([]);
+      setActiveAddress(null);
     }
   }, [galleryAddressesData, activeAddress]);
 
@@ -305,7 +311,7 @@ export default function Content() {
               </nav>
             </div>
 
-            {activeTab === 'upload' && (
+            {activeTab === 'upload' && galleryAddresses.length > 0 && (
               <div>
                 <div className="mb-8">
                   <TransactionCostBox
@@ -370,6 +376,12 @@ export default function Content() {
                     <p className="text-red-500">{writeError.message}</p>
                   )}
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'upload' && galleryAddresses.length === 0 && (
+              <div className="text-center mt-4">
+                <p className="text-gray-600">Create a gallery to start uploading images</p>
               </div>
             )}
 

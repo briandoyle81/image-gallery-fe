@@ -7,6 +7,7 @@ import polygonImageGalleryFactory from './imageGalleryFactories/polygon-address.
 import baseImageGalleryFactory from './imageGalleryFactories/base-address.json';
 import arbitrumImageGalleryFactory from './imageGalleryFactories/arbitrum-address.json';
 import avalancheImageGalleryFactory from './imageGalleryFactories/avalanche-address.json';
+import bscImageGalleryFactory from './imageGalleryFactories/bsc-address.json';
 
 import baseImageGallery from './imageGalleries/base_address.json';
 import mainnetImageGallery from './imageGalleries/mainnet_address.json';
@@ -43,6 +44,12 @@ export const contractData = {
   },
   avalancheImageGalleryFactory: {
     address: avalancheImageGalleryFactory[
+      'PersonalImageGalleryFactory#PersonalImageGalleryFactory'
+    ] as `0x${string}`,
+    abi: personalImageGalleryFactory.abi as Abi,
+  },
+  bscImageGalleryFactory: {
+    address: bscImageGalleryFactory[
       'PersonalImageGalleryFactory#PersonalImageGalleryFactory'
     ] as `0x${string}`,
     abi: personalImageGalleryFactory.abi as Abi,
