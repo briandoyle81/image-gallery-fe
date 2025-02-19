@@ -256,7 +256,7 @@ export default function Content() {
                   href={`https://evm.flowscan.io/address/${activeAddress}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-white bg-gray-500 hover:bg-gray-600"
+                  className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
                 >
                   View Contract
                 </a>
@@ -383,10 +383,21 @@ export default function Content() {
         {!account.isConnected && (
           <div className="text-center">
             <p className="text-xl font-bold">
-              Connect your wallet to view your galleries
+              Connect your wallet to view your galleries.  Use the Flow Wallet for sponsored gas!
             </p>
           </div>
         )}
+
+        <footer className="mt-8 text-center border-t border-gray-200 pt-4">
+          <a
+            href="https://developers.flow.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-500 hover:text-blue-600 font-medium"
+          >
+            Learn to Build on Flow
+          </a>
+        </footer>
       </div>
     </div>
   );

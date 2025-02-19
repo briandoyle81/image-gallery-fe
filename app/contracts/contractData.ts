@@ -14,7 +14,7 @@ import polygonImageGallery from './imageGalleries/polygon_address.json';
 import optimismImageGallery from './imageGalleries/optimism_address.json';
 import arbitrumImageGallery from './imageGalleries/arbitrum_address.json';
 import avalancheImageGallery from './imageGalleries/avalanche_address.json';
-import bnbImageGallery from './imageGalleries/bnb_address.json';
+import bscImageGallery from './imageGalleries/bsc_address.json';
 import flowImageGallery from './imageGalleries/flow_address.json';
 export const contractData = {
   flowImageGalleryFactory: {
@@ -92,9 +92,9 @@ export const contractData = {
       'PersonalImageGallery#PersonalImageGallery'
     ] as `0x${string}`,
   },
-  bnbImageGallery: {
+  bscImageGallery: {
     abi: personalImageGallery.abi as Abi,
-    address: bnbImageGallery[
+    address: bscImageGallery[
       'PersonalImageGallery#PersonalImageGallery'
     ] as `0x${string}`,
   },

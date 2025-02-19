@@ -8,7 +8,7 @@ import {
   mainnet,
   avalanche,
   base,
-  // bsc,
+  bsc,
   arbitrum,
   polygon,
   flowMainnet,
@@ -31,7 +31,7 @@ function mockBase64StringWithAs(length: number): string {
 export async function POST(request: NextRequest) {
   const {
     baseImageGallery,
-    // bnbImageGallery,
+    bscImageGallery: bnbImageGallery,
     flowImageGallery,
     mainnetImageGallery,
     polygonImageGallery,
@@ -108,13 +108,6 @@ export async function POST(request: NextRequest) {
       })
     );
 
-    costs.push({
-      chainName: 'BNB Chain',
-      logo: '/chain-logos/binance-coin-bnb-logo.png',
-      error: 'Coming soon',
-    });
-
-    /* Keeping for reference when BNB support is added
     costs.push(
       await estimateContractCallCosts({
         chain: bsc,
@@ -124,7 +117,6 @@ export async function POST(request: NextRequest) {
         args: ['', mockedImage],
       })
     );
-    */
 
     costs.push(
       await estimateContractCallCosts({

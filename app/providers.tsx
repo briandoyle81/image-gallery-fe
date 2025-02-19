@@ -7,7 +7,7 @@ import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import {
   base,
   flowMainnet,
-  // bsc,
+  bsc,
   arbitrum,
   avalanche,
   polygon,
@@ -15,7 +15,6 @@ import {
 import {
   // coinbaseWallet,
   metaMaskWallet,
-  walletConnectWallet,
 } from '@rainbow-me/rainbowkit/wallets';
 import { flowWallet } from './flowWallet';
 
@@ -29,7 +28,7 @@ const connectors = connectorsForWallets(
     },
     {
       groupName: 'Other',
-      wallets: [metaMaskWallet, walletConnectWallet],
+      wallets: [metaMaskWallet],
     },
   ],
   {
@@ -50,7 +49,7 @@ const wagmiConfig = createConfig({
     [arbitrum.id]: http(),
     [avalanche.id]: http(),
     [polygon.id]: http(),
-    // [bsc.id]: http(),
+    [bsc.id]: http(),
   },
 });
 
