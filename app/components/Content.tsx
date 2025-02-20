@@ -277,7 +277,7 @@ export default function Content() {
                       : 'bg-gray-300 cursor-not-allowed'
                   }`}
                 >
-                  {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
+                  {awaitingResponse ? 'Loading...' : 'Create Gallery'}
                 </button>
               </div>
             </div>
@@ -327,7 +327,7 @@ export default function Content() {
                               : 'bg-gray-300 cursor-not-allowed'
                           }`}
                         >
-                          {awaitingResponse ? 'Saving image...' : 'Save Onchain'}
+                          {awaitingResponse ? 'Loading...' : 'Save Onchain'}
                         </button>
                       )}
                       {activeAddress === null && (
