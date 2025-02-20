@@ -24,6 +24,7 @@ import {
   bsc,
 } from 'viem/chains';
 import Image from 'next/image';
+import Header from './Header';
 
 export default function Content() {
   const [reload, setReload] = useState(false);
@@ -259,15 +260,20 @@ export default function Content() {
     });
   }
 
+  function Disclaimer() {
+    return (
+      <div className="mb-4">
+        <p className="text-lg">
+          This is a fun benchmark. It is not best practice and is not a production app.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <div className="mb-4">
-          <p className="text-lg">
-            This is a fun benchmark. It is not best practice and is not a
-            production app.
-          </p>
-        </div>
+        <Disclaimer />
         {account.isConnected && (
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -290,14 +296,22 @@ export default function Content() {
             </div>
             <div className="flex gap-2">
               {activeAddress && (
-                <a
-                  href={`https://evm.flowscan.io/address/${activeAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
-                >
-                  View Contract
-                </a>
+                <>
+                  <a
+                    href={`/${activeAddress}`}
+                    className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
+                  >
+                    View Gallery
+                  </a>
+                  <a
+                    href={`https://evm.flowscan.io/address/${activeAddress}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
+                  >
+                    View Contract
+                  </a>
+                </>
               )}
               <button
                 onClick={handleCreateGallery}
@@ -316,34 +330,7 @@ export default function Content() {
 
         {account.isConnected && (
           <div>
-            <div className="border-b border-gray-200 mb-4">
-              <nav className="-mb-px flex">
-                <button
-                  onClick={() => setActiveTab('upload')}
-                  className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm
-                    ${
-                      activeTab === 'upload'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                >
-                  Upload
-                </button>
-                <button
-                  onClick={() => setActiveTab('gallery')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm
-                    ${
-                      activeTab === 'gallery'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
-                >
-                  Gallery
-                </button>
-              </nav>
-            </div>
-
-            {activeTab === 'upload' && galleryAddresses.length > 0 && (
+            {galleryAddresses.length > 0 && (
               <div>
                 <div className="mb-8">
                   <TransactionCostBox
@@ -372,12 +359,12 @@ export default function Content() {
                       {uploadSuccess ? (
                         <div className="flex items-center justify-center gap-2 text-green-600">
                           <span>✅</span>
-                          <button
-                            onClick={() => setActiveTab('gallery')}
+                          <a
+                            href={`/${activeAddress}`}
                             className="text-green-600 hover:text-green-700"
                           >
                             View Image in Gallery
-                          </button>
+                          </a>
                         </div>
                       ) : (
                         <button
@@ -411,15 +398,9 @@ export default function Content() {
               </div>
             )}
 
-            {activeTab === 'upload' && galleryAddresses.length === 0 && (
+            {galleryAddresses.length === 0 && (
               <div className="text-center mt-4">
                 <p className="text-gray-600">Create a gallery to start uploading images</p>
-              </div>
-            )}
-
-            {activeTab === 'gallery' && (
-              <div className="mb-4">
-                <ImageGallery images={imageGallery} />
               </div>
             )}
           </div>

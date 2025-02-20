@@ -1,7 +1,10 @@
 'use client';
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from 'next/image';
+import { useChainId, useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { flowMainnet } from 'viem/chains';
+import useContracts from '../contracts/contracts';
 
 export type ImageGalleryImage = {
   description: string;
@@ -10,9 +13,60 @@ export type ImageGalleryImage = {
 
 type ImageGalleryProps = {
   images: ImageGalleryImage[]; // Array of image objects
+  galleryAddress: string;
 };
 
-const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
+const ImageGallery: React.FC<ImageGalleryProps> = ({ images, galleryAddress }) => {
+  const chainId = useChainId();
+  const { address, isConnected } = useAccount();
+  const isFlowNetwork = chainId === flowMainnet.id;
+  const { galleryMinter } = useContracts();
+  const [mintingStates, setMintingStates] = useState<Record<number, boolean>>({});
+  const [mintedImages, setMintedImages] = useState<Record<number, boolean>>({});
+
+  const { data, writeContract, error: writeError } = useWriteContract();
+
+  const { data: receipt, error: receiptError } = useWaitForTransactionReceipt({
+    hash: data,
+  });
+
+  useEffect(() => {
+    if (receipt) {
+      console.log('Minting complete:', receipt);
+      const mintedIndex = Object.keys(mintingStates).find(
+        index => mintingStates[Number(index)] === true
+      );
+      if (mintedIndex) {
+        setMintingStates(prev => ({
+          ...prev,
+          [Number(mintedIndex)]: false
+        }));
+        setMintedImages(prev => ({
+          ...prev,
+          [Number(mintedIndex)]: true
+        }));
+      }
+    }
+  }, [receipt, mintingStates]);
+
+  useEffect(() => {
+    if (writeError || receiptError) {
+      console.error('Minting error:', writeError || receiptError);
+      // Reset all minting states on error
+      setMintingStates({});
+    }
+  }, [writeError, receiptError]);
+
+  const handleMint = (imageIndex: number) => {
+    setMintingStates(prev => ({ ...prev, [imageIndex]: true }));
+    writeContract({
+      abi: galleryMinter.abi,
+      address: galleryAddress as `0x${string}`,
+      functionName: 'mint',
+      args: [address as `0x${string}`, imageIndex, 1],
+    });
+  };
+
   if (images.length === 0) {
     return (
       <div className="container mx-auto px-4">
@@ -50,9 +104,29 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images }) => {
                   Invalid image data
                 </div>
               )}
-              <div className="p-2 bg-gray-100 text-center text-sm text-gray-700">
+              {isFlowNetwork && (
+                <div className="p-2 text-center">
+                  <button
+                    className={`px-4 py-2 rounded-lg text-white ${
+                      isConnected && !mintingStates[index]
+                        ? 'bg-blue-500 hover:bg-blue-600'
+                        : 'bg-gray-300 cursor-not-allowed'
+                    }`}
+                    disabled={!isConnected || mintingStates[index]}
+                    onClick={() => handleMint(index)}
+                  >
+                    {mintingStates[index] 
+                      ? 'Processing...' 
+                      : mintedImages[index] 
+                        ? 'Mint Again' 
+                        : 'Mint'
+                    }
+                  </button>
+                </div>
+              )}
+              {/* <div className="p-2 bg-gray-100 text-center text-sm text-gray-700">
                 {image.description || "No description available"}
-              </div>
+              </div> */}
             </div>
           );
         })}
