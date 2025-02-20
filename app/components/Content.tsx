@@ -47,7 +47,9 @@ export default function Content() {
   const queryClient = useQueryClient();
   const {
     personalImageGallery,
-    flowImageGalleryFactory,
+    galleryMinter,
+    // flowImageGalleryFactory,
+    flowMinterFactory,
     polygonImageGalleryFactory,
     baseImageGalleryFactory,
     arbitrumImageGalleryFactory,
@@ -61,7 +63,8 @@ export default function Content() {
     if (account.chainId) {
       switch (account.chainId) {
         case flowMainnet.id:
-          return flowImageGalleryFactory;
+        // return flowImageGalleryFactory;
+          return flowMinterFactory;
         case polygon.id:
           return polygonImageGalleryFactory;
         case base.id:
@@ -76,7 +79,36 @@ export default function Content() {
           throw new Error('Unsupported chain ' + account.chainId);
       }
     } else {
-      return flowImageGalleryFactory;
+      // return flowImageGalleryFactory;
+      return flowMinterFactory;
+    }
+  }
+
+  function getGalleryAbi() {
+    if (account.chainId) {
+      switch (account.chainId) {
+        case flowMainnet.id:
+          console.log('Using galleryMinter.abi');
+          return galleryMinter.abi;
+        default:
+          console.log('Using personalImageGallery.abi');
+          return personalImageGallery.abi;
+      }
+    } else {
+      return galleryMinter.abi;
+    }
+  }
+
+  function getCreateFunctionName() {
+    if (account.chainId) {
+      switch (account.chainId) {
+        case flowMainnet.id:
+          return 'createGalleryAndMinter';
+        default:
+          return 'createPersonalImageGallery';
+      }
+    } else {
+      return 'createGalleryAndMinter';
     }
   }
 
@@ -95,7 +127,7 @@ export default function Content() {
     });
 
   const { data: galleryData, queryKey: galleryQueryKey } = useReadContract({
-    abi: personalImageGallery.abi,
+    abi: getGalleryAbi(),
     address: activeAddress as `0x${string}`,
     functionName: 'getImages',
   });
@@ -206,7 +238,7 @@ export default function Content() {
     writeContract({
       abi: getCurrentFactory().abi,
       address: getCurrentFactory().address,
-      functionName: 'createPersonalImageGallery',
+      functionName: getCreateFunctionName(),
       args: [account.address],
     });
   }

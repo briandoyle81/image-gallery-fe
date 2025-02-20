@@ -1,6 +1,8 @@
 import { Abi } from 'viem';
 import personalImageGalleryFactory from './PersonalImageGalleryFactory#PersonalImageGalleryFactory.json';
 import personalImageGallery from './PersonalImageGallery#PersonalImageGallery.json';
+import galleryMinter from './minter/GalleryMinter#GalleryMinter.json';
+import galleryMinterFactory from './minter/MinterFactory#MinterFactory.json';
 
 import flowImageGalleryFactory from './imageGalleryFactories/flow_address.json';
 import polygonImageGalleryFactory from './imageGalleryFactories/polygon-address.json';
@@ -17,12 +19,22 @@ import arbitrumImageGallery from './imageGalleries/arbitrum_address.json';
 import avalancheImageGallery from './imageGalleries/avalanche_address.json';
 import bscImageGallery from './imageGalleries/bsc_address.json';
 import flowImageGallery from './imageGalleries/flow_address.json';
+
+import flowMinterAddresses from './minter/deployed_addresses.json';
+
 export const contractData = {
-  flowImageGalleryFactory: {
-    address: flowImageGalleryFactory[
-      'PersonalImageGalleryFactory#PersonalImageGalleryFactory'
+  // flowImageGalleryFactory: {
+  //   address: flowImageGalleryFactory[
+  //     'PersonalImageGalleryFactory#PersonalImageGalleryFactory'
+  //   ] as `0x${string}`,
+  //   abi: personalImageGalleryFactory.abi as Abi,
+  // },
+  // The minter factory is a drop-in replacement covering all old functionality
+  flowMinterFactory: {
+    address: flowMinterAddresses[
+      'MinterFactory#MinterFactory'
     ] as `0x${string}`,
-    abi: personalImageGalleryFactory.abi as Abi,
+    abi: galleryMinterFactory.abi as Abi,
   },
   polygonImageGalleryFactory: {
     address: polygonImageGalleryFactory[
@@ -57,12 +69,16 @@ export const contractData = {
   personalImageGallery: {
     abi: personalImageGallery.abi as Abi,
   },
+  galleryMinter: {
+    abi: galleryMinter.abi as Abi,
+  },
   baseImageGallery: {
     abi: personalImageGallery.abi as Abi,
     address: baseImageGallery[
       'PersonalImageGallery#PersonalImageGallery'
     ] as `0x${string}`,
   },
+  // Leave this alone, these are used for estimates
   flowImageGallery: {
     abi: personalImageGallery.abi as Abi,
     address: flowImageGallery[
