@@ -52,9 +52,9 @@ export default function SingleImageMinter({ galleryAddress, imageIndex }: Single
   if (!isFlowNetwork) return null;
 
   return (
-    <div className="p-4 text-center">
+    <div className="p-2 sm:p-4 text-center">
       <button
-        className={`px-6 py-3 rounded-lg text-white text-lg ${
+        className={`w-full sm:w-auto px-6 py-3 rounded-lg text-white text-lg ${
           isConnected && !isMinting
             ? 'bg-blue-500 hover:bg-blue-600'
             : 'bg-gray-300 cursor-not-allowed'

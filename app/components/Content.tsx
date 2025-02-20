@@ -275,61 +275,58 @@ export default function Content() {
       <div className="flex flex-col gap-4">
         <Disclaimer />
         {account.isConnected && (
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Select a Gallery
-              </label>
-              <select
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
-                focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                sm:text-sm rounded-md"
-                value={activeAddress || ''}
-                onChange={(e) => handleSetActiveAddress(e.target.value)}
-              >
-                {galleryAddresses.map((address) => (
-                  <option key={address} value={address}>
-                    {address}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              {activeAddress && (
-                <>
-                  <a
-                    href={`/${activeAddress}`}
-                    className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
-                  >
-                    View Gallery
-                  </a>
-                  <a
-                    href={`https://evm.flowscan.io/address/${activeAddress}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
-                  >
-                    View Contract
-                  </a>
-                </>
-              )}
-              <button
-                onClick={handleCreateGallery}
-                disabled={awaitingResponse}
-                className={`px-4 py-2 rounded-lg text-white ${
-                  !awaitingResponse
-                    ? 'bg-blue-500 hover:bg-blue-600'
-                    : 'bg-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {account.isConnected && (
           <div>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select a Gallery
+                </label>
+                <select
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
+                  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                  sm:text-sm rounded-md"
+                  value={activeAddress || ''}
+                  onChange={(e) => handleSetActiveAddress(e.target.value)}
+                >
+                  {galleryAddresses.map((address) => (
+                    <option key={address} value={address}>
+                      {address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-row gap-2 sm:justify-end sm:flex-shrink-0">
+                {activeAddress && (
+                  <>
+                    <a
+                      href={`/${activeAddress}`}
+                      className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 text-center"
+                    >
+                      View Gallery
+                    </a>
+                    <a
+                      href={`https://evm.flowscan.io/address/${activeAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 text-center"
+                    >
+                      View Contract
+                    </a>
+                  </>
+                )}
+                <button
+                  onClick={handleCreateGallery}
+                  disabled={awaitingResponse}
+                  className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white text-center ${
+                    !awaitingResponse
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
+                </button>
+              </div>
+            </div>
             {galleryAddresses.length > 0 && (
               <div>
                 <div className="mb-8">
