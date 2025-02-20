@@ -16,7 +16,7 @@ export const chainCoinGeckoIds: Record<string, string> = {
   [avalanche.name]: 'avalanche-2',
   [bsc.name]: 'binancecoin',
   [flowMainnet.name]: 'flow', // Make sure this matches CoinGecko's ID
-  'Flow Sponsored by Flow Wallet': 'flow',
+  'Flow Wallet': 'flow',
 };
 
 export const chainLogos: Record<string, string> = {
@@ -27,5 +27,5 @@ export const chainLogos: Record<string, string> = {
   [avalanche.name]: '/chain-logos/avalanche-avax-logo.png',
   [bsc.name]: '/chain-logos/binance-coin-bnb-logo.png',
   [flowMainnet.name]: '/chain-logos/flow-flow-logo.png',
-  'Flow Sponsored by Flow Wallet': '/chain-logos/flow-flow-logo.png',
+  'Flow Wallet': '/chain-logos/flow-flow-logo.png',
 };

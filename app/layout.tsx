@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'FlowtoBooth',
-  description: 'Save images to your own personal gallery onchain',
+  description: 'A fun benchmark for Flow EVM',
 };
 
 export default function RootLayout({

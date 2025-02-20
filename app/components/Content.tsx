@@ -10,7 +10,6 @@ import {
 } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import { useQueryClient } from '@tanstack/react-query';
-import ImageGallery, { ImageGalleryImage } from './GalleryDisplay';
 import ImageUploader from './ImageUploader';
 import TransactionCostBox from './TransactionCostBox';
 import { ChainCost } from '../util/EstimateTxCosts';
@@ -29,7 +28,6 @@ export default function Content() {
   const [reload, setReload] = useState(false);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
   const [galleryAddresses, setGalleryAddresses] = useState<string[]>([]);
-  const [imageGallery, setImageGallery] = useState<ImageGalleryImage[]>([]);
   const [activeAddress, setActiveAddress] = useState<string | null>(null);
   const [uploadedBase64Image, setUploadedBase64Image] = useState<string>('');
   const [costDetails, setCostDetails] = useState<ChainCost[]>(
@@ -39,7 +37,7 @@ export default function Content() {
       totalCost: undefined,
     }))
   );
-  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
@@ -47,7 +45,9 @@ export default function Content() {
   const queryClient = useQueryClient();
   const {
     personalImageGallery,
-    flowImageGalleryFactory,
+    // galleryMinter,
+    // flowImageGalleryFactory,
+    flowMinterFactory,
     polygonImageGalleryFactory,
     baseImageGalleryFactory,
     arbitrumImageGalleryFactory,
@@ -61,7 +61,8 @@ export default function Content() {
     if (account.chainId) {
       switch (account.chainId) {
         case flowMainnet.id:
-          return flowImageGalleryFactory;
+        // return flowImageGalleryFactory;
+          return flowMinterFactory;
         case polygon.id:
           return polygonImageGalleryFactory;
         case base.id:
@@ -76,7 +77,21 @@ export default function Content() {
           throw new Error('Unsupported chain ' + account.chainId);
       }
     } else {
-      return flowImageGalleryFactory;
+      // return flowImageGalleryFactory;
+      return flowMinterFactory;
+    }
+  }
+
+  function getCreateFunctionName() {
+    if (account.chainId) {
+      switch (account.chainId) {
+        case flowMainnet.id:
+          return 'createGalleryAndMinter';
+        default:
+          return 'createPersonalImageGallery';
+      }
+    } else {
+      return 'createGalleryAndMinter';
     }
   }
 
@@ -93,12 +108,6 @@ export default function Content() {
       functionName: 'getGalleries',
       args: [account.address],
     });
-
-  const { data: galleryData, queryKey: galleryQueryKey } = useReadContract({
-    abi: personalImageGallery.abi,
-    address: activeAddress as `0x${string}`,
-    functionName: 'getImages',
-  });
 
   useEffect(() => {
     if (galleryAddressesData) {
@@ -118,14 +127,6 @@ export default function Content() {
   }, [galleryAddressesData, activeAddress]);
 
   useEffect(() => {
-    if (galleryData) {
-      const newImages = galleryData as ImageGalleryImage[];
-      newImages.reverse();
-      setImageGallery(newImages);
-    }
-  }, [galleryData]);
-
-  useEffect(() => {
     if (receipt) {
       console.log(receipt);
       setReload(true);
@@ -138,9 +139,8 @@ export default function Content() {
     if (reload) {
       setReload(false);
       queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
     }
-  }, [reload, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
+  }, [reload, queryClient, galleryAddressesQueryKey]);
 
   useEffect(() => {
     if (writeError) {
@@ -179,7 +179,6 @@ export default function Content() {
 
   useEffect(() => {
     // Reset state when network changes
-    setImageGallery([]);
     setGalleryAddresses([]);
     setActiveAddress(null);
   }, [chainId]);
@@ -194,7 +193,6 @@ export default function Content() {
   useEffect(() => {
     // Reset state when wallet disconnects
     if (!account.isConnected) {
-      setImageGallery([]);
       setGalleryAddresses([]);
       setActiveAddress(null);
       setUploadedBase64Image('');
@@ -206,7 +204,7 @@ export default function Content() {
     writeContract({
       abi: getCurrentFactory().abi,
       address: getCurrentFactory().address,
-      functionName: 'createPersonalImageGallery',
+      functionName: getCreateFunctionName(),
       args: [account.address],
     });
   }
@@ -230,88 +228,60 @@ export default function Content() {
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <div className="mb-4">
-          <p className="text-lg">
-            This is a fun benchmark. It is not best practice and is not a
-            production app.
-          </p>
-        </div>
-        {account.isConnected && (
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Select a Gallery
-              </label>
-              <select
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
-                focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
-                sm:text-sm rounded-md"
-                value={activeAddress || ''}
-                onChange={(e) => handleSetActiveAddress(e.target.value)}
-              >
-                {galleryAddresses.map((address) => (
-                  <option key={address} value={address}>
-                    {address}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex gap-2">
-              {activeAddress && (
-                <a
-                  href={`https://evm.flowscan.io/address/${activeAddress}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600"
-                >
-                  View Contract
-                </a>
-              )}
-              <button
-                onClick={handleCreateGallery}
-                disabled={awaitingResponse}
-                className={`px-4 py-2 rounded-lg text-white ${
-                  !awaitingResponse
-                    ? 'bg-blue-500 hover:bg-blue-600'
-                    : 'bg-gray-300 cursor-not-allowed'
-                }`}
-              >
-                {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
-              </button>
-            </div>
-          </div>
-        )}
-
         {account.isConnected && (
           <div>
-            <div className="border-b border-gray-200 mb-4">
-              <nav className="-mb-px flex">
-                <button
-                  onClick={() => setActiveTab('upload')}
-                  className={`mr-8 py-4 px-1 border-b-2 font-medium text-sm
-                    ${
-                      activeTab === 'upload'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Select a Gallery
+                </label>
+                <select
+                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 
+                  focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 
+                  sm:text-sm rounded-md"
+                  value={activeAddress || ''}
+                  onChange={(e) => handleSetActiveAddress(e.target.value)}
                 >
-                  Upload
-                </button>
+                  {galleryAddresses.map((address) => (
+                    <option key={address} value={address}>
+                      {address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-row gap-2 sm:justify-end sm:flex-shrink-0">
+                {activeAddress && (
+                  <>
+                    <a
+                      href={`/${activeAddress}`}
+                      className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 text-center"
+                    >
+                      View Gallery
+                    </a>
+                    <a
+                      href={`https://evm.flowscan.io/address/${activeAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 text-center"
+                    >
+                      View Contract
+                    </a>
+                  </>
+                )}
                 <button
-                  onClick={() => setActiveTab('gallery')}
-                  className={`py-4 px-1 border-b-2 font-medium text-sm
-                    ${
-                      activeTab === 'gallery'
-                        ? 'border-blue-500 text-blue-600'
-                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                    }`}
+                  onClick={handleCreateGallery}
+                  disabled={awaitingResponse}
+                  className={`flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white text-center ${
+                    !awaitingResponse
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
                 >
-                  Gallery
+                  {awaitingResponse ? 'Creating gallery...' : 'Create Gallery'}
                 </button>
-              </nav>
+              </div>
             </div>
-
-            {activeTab === 'upload' && galleryAddresses.length > 0 && (
+            {galleryAddresses.length > 0 && (
               <div>
                 <div className="mb-8">
                   <TransactionCostBox
@@ -340,12 +310,12 @@ export default function Content() {
                       {uploadSuccess ? (
                         <div className="flex items-center justify-center gap-2 text-green-600">
                           <span>✅</span>
-                          <button
-                            onClick={() => setActiveTab('gallery')}
+                          <a
+                            href={`/${activeAddress}`}
                             className="text-green-600 hover:text-green-700"
                           >
                             View Image in Gallery
-                          </button>
+                          </a>
                         </div>
                       ) : (
                         <button
@@ -379,15 +349,9 @@ export default function Content() {
               </div>
             )}
 
-            {activeTab === 'upload' && galleryAddresses.length === 0 && (
+            {galleryAddresses.length === 0 && (
               <div className="text-center mt-4">
                 <p className="text-gray-600">Create a gallery to start uploading images</p>
-              </div>
-            )}
-
-            {activeTab === 'gallery' && (
-              <div className="mb-4">
-                <ImageGallery images={imageGallery} />
               </div>
             )}
           </div>
