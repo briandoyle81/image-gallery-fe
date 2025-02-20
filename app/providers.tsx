@@ -5,12 +5,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createConfig, http, WagmiProvider } from 'wagmi';
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import {
-  base,
+  // base,
   flowMainnet,
-  bsc,
-  arbitrum,
-  avalanche,
-  polygon,
+  // bsc,
+  // arbitrum,
+  // avalanche,
+  // polygon,
 } from 'viem/chains';
 import {
   // coinbaseWallet,
@@ -39,17 +39,18 @@ const connectors = connectorsForWallets(
 
 const wagmiConfig = createConfig({
   connectors,
-  chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
+  // chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
+  chains: [flowMainnet],
   ssr: true,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
     [flowMainnet.id]: http('https://white-bold-sound.flow-mainnet.quiknode.pro/ed505487257d3fad3671bcae7eb001dd6de5ea49'),
-    [base.id]: http(),
-    [arbitrum.id]: http(),
-    [avalanche.id]: http(),
-    [polygon.id]: http(),
-    [bsc.id]: http(),
+    // [base.id]: http(),
+    // [arbitrum.id]: http(),
+    // [avalanche.id]: http(),
+    // [polygon.id]: http(),
+    // [bsc.id]: http(),
   },
 });
 
