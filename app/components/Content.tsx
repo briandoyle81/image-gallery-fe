@@ -10,7 +10,7 @@ import {
 } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import { useQueryClient } from '@tanstack/react-query';
-import ImageGallery, { ImageGalleryImage } from './GalleryDisplay';
+import { ImageGalleryImage } from './GalleryDisplay';
 import ImageUploader from './ImageUploader';
 import TransactionCostBox from './TransactionCostBox';
 import { ChainCost } from '../util/EstimateTxCosts';
@@ -24,7 +24,6 @@ import {
   bsc,
 } from 'viem/chains';
 import Image from 'next/image';
-import Header from './Header';
 
 export default function Content() {
   const [reload, setReload] = useState(false);
@@ -40,7 +39,7 @@ export default function Content() {
       totalCost: undefined,
     }))
   );
-  const [activeTab, setActiveTab] = useState<'upload' | 'gallery'>('upload');
+
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
@@ -260,20 +259,9 @@ export default function Content() {
     });
   }
 
-  function Disclaimer() {
-    return (
-      <div className="mb-4">
-        <p className="text-lg">
-          This is a fun benchmark. It is not best practice and is not a production app.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        <Disclaimer />
         {account.isConnected && (
           <div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">

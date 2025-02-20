@@ -33,21 +33,10 @@ export default function SingleImagePage() {
     }
   }, [galleryData, index]);
 
-  function Disclaimer() {
-    return (
-      <div className="mb-4">
-        <p className="text-lg">
-          This is a fun benchmark. It is not best practice and is not a production app.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 py-8">
-        <Disclaimer />
         <div className="mb-6">
           <Link 
             href={`/${address}`}

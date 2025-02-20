@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
     );
 
     costs.push({
-      chainName: 'Flow Sponsored by Flow Wallet',
+      chainName: 'Flow Wallet',
       logo: '/chain-logos/flow-flow-logo.png',
       totalCost: '0.00000',
     });
