@@ -9,12 +9,14 @@ import ImageGallery, { ImageGalleryImage } from '../components/GalleryDisplay';
 import { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Link from 'next/link';
+import { useAccount } from 'wagmi';
 
 export default function GalleryPage() {
   const params = useParams();
   const address = params.address as string;
   const [images, setImages] = useState<ImageGalleryImage[]>([]);
-  const { personalImageGallery, galleryMinter } = useContracts();
+  const { galleryMinter } = useContracts();
+  const { isLoading: isAccountLoading } = useAccount();
 
   const { data: galleryData } = useReadContract({
     abi: galleryMinter.abi,
@@ -29,6 +31,19 @@ export default function GalleryPage() {
       setImages(newImages);
     }
   }, [galleryData]);
+
+  if (isAccountLoading) {
+    return (
+      <>
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <p>Loading...</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

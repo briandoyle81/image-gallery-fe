@@ -10,7 +10,6 @@ import {
 } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import { useQueryClient } from '@tanstack/react-query';
-import { ImageGalleryImage } from './GalleryDisplay';
 import ImageUploader from './ImageUploader';
 import TransactionCostBox from './TransactionCostBox';
 import { ChainCost } from '../util/EstimateTxCosts';
@@ -29,7 +28,6 @@ export default function Content() {
   const [reload, setReload] = useState(false);
   const [awaitingResponse, setAwaitingResponse] = useState(false);
   const [galleryAddresses, setGalleryAddresses] = useState<string[]>([]);
-  const [imageGallery, setImageGallery] = useState<ImageGalleryImage[]>([]);
   const [activeAddress, setActiveAddress] = useState<string | null>(null);
   const [uploadedBase64Image, setUploadedBase64Image] = useState<string>('');
   const [costDetails, setCostDetails] = useState<ChainCost[]>(
@@ -47,7 +45,7 @@ export default function Content() {
   const queryClient = useQueryClient();
   const {
     personalImageGallery,
-    galleryMinter,
+    // galleryMinter,
     // flowImageGalleryFactory,
     flowMinterFactory,
     polygonImageGalleryFactory,
@@ -84,21 +82,6 @@ export default function Content() {
     }
   }
 
-  function getGalleryAbi() {
-    if (account.chainId) {
-      switch (account.chainId) {
-        case flowMainnet.id:
-          console.log('Using galleryMinter.abi');
-          return galleryMinter.abi;
-        default:
-          console.log('Using personalImageGallery.abi');
-          return personalImageGallery.abi;
-      }
-    } else {
-      return galleryMinter.abi;
-    }
-  }
-
   function getCreateFunctionName() {
     if (account.chainId) {
       switch (account.chainId) {
@@ -126,12 +109,6 @@ export default function Content() {
       args: [account.address],
     });
 
-  const { data: galleryData, queryKey: galleryQueryKey } = useReadContract({
-    abi: getGalleryAbi(),
-    address: activeAddress as `0x${string}`,
-    functionName: 'getImages',
-  });
-
   useEffect(() => {
     if (galleryAddressesData) {
       const newAddresses = galleryAddressesData as string[];
@@ -150,14 +127,6 @@ export default function Content() {
   }, [galleryAddressesData, activeAddress]);
 
   useEffect(() => {
-    if (galleryData) {
-      const newImages = galleryData as ImageGalleryImage[];
-      newImages.reverse();
-      setImageGallery(newImages);
-    }
-  }, [galleryData]);
-
-  useEffect(() => {
     if (receipt) {
       console.log(receipt);
       setReload(true);
@@ -170,9 +139,8 @@ export default function Content() {
     if (reload) {
       setReload(false);
       queryClient.invalidateQueries({ queryKey: galleryAddressesQueryKey });
-      queryClient.invalidateQueries({ queryKey: galleryQueryKey });
     }
-  }, [reload, queryClient, galleryAddressesQueryKey, galleryQueryKey]);
+  }, [reload, queryClient, galleryAddressesQueryKey]);
 
   useEffect(() => {
     if (writeError) {
@@ -211,7 +179,6 @@ export default function Content() {
 
   useEffect(() => {
     // Reset state when network changes
-    setImageGallery([]);
     setGalleryAddresses([]);
     setActiveAddress(null);
   }, [chainId]);
@@ -226,7 +193,6 @@ export default function Content() {
   useEffect(() => {
     // Reset state when wallet disconnects
     if (!account.isConnected) {
-      setImageGallery([]);
       setGalleryAddresses([]);
       setActiveAddress(null);
       setUploadedBase64Image('');

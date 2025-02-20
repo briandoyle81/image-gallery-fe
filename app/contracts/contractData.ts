@@ -4,7 +4,7 @@ import personalImageGallery from './PersonalImageGallery#PersonalImageGallery.js
 import galleryMinter from './minter/GalleryMinter#GalleryMinter.json';
 import galleryMinterFactory from './minter/MinterFactory#MinterFactory.json';
 
-import flowImageGalleryFactory from './imageGalleryFactories/flow_address.json';
+// import flowImageGalleryFactory from './imageGalleryFactories/flow_address.json';
 import polygonImageGalleryFactory from './imageGalleryFactories/polygon-address.json';
 import baseImageGalleryFactory from './imageGalleryFactories/base-address.json';
 import arbitrumImageGalleryFactory from './imageGalleryFactories/arbitrum-address.json';
