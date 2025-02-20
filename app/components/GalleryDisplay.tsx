@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useChainId, useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { flowMainnet } from 'viem/chains';
 import useContracts from '../contracts/contracts';
+import Link from 'next/link';
 
 export type ImageGalleryImage = {
   description: string;
@@ -90,15 +91,17 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, galleryAddress }) =
               className="border border-gray-200 rounded-lg overflow-hidden shadow-md"
             >
               {isValidBase64Image ? (
-                <div className="relative w-full aspect-square">
-                  <Image
-                    src={image.base64EncodedImage}
-                    alt={image.description || `Image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  />
-                </div>
+                <Link href={`/${galleryAddress}/${index}`}>
+                  <div className="relative w-full aspect-square cursor-pointer hover:opacity-90 transition-opacity">
+                    <Image
+                      src={image.base64EncodedImage}
+                      alt={image.description || `Image ${index + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    />
+                  </div>
+                </Link>
               ) : (
                 <div className="p-4 text-center text-red-500">
                   Invalid image data
