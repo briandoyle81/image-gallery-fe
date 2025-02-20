@@ -16,7 +16,7 @@ export default function GalleryPage() {
   const address = params.address as string;
   const [images, setImages] = useState<ImageGalleryImage[]>([]);
   const { galleryMinter } = useContracts();
-  const { isLoading: isAccountLoading } = useAccount();
+  const { status } = useAccount();
 
   const { data: galleryData } = useReadContract({
     abi: galleryMinter.abi,
@@ -32,7 +32,7 @@ export default function GalleryPage() {
     }
   }, [galleryData]);
 
-  if (isAccountLoading) {
+  if (status === 'reconnecting') {
     return (
       <>
         <Header />
