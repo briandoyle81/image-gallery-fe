@@ -1,23 +1,27 @@
+'use client';
+
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     eruda: any;
   }
 }
 
-'use client';
-
 import { useEffect } from "react";
-import eruda from "eruda";
-
 import Content from './components/Content';
 import Header from './components/Header';
 
 export default function Home() {
-    useEffect(() => {
-    if (typeof window !== "undefined" && !window.eruda) {
-      eruda.init();
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      import('eruda').then(module => {
+        if (!window.eruda) {
+          module.default.init();
+        }
+      });
     }
   }, []);
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
