@@ -3,22 +3,15 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useBalance } from 'wagmi';
 import { formatEther } from 'viem';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function LoginWithPrivy() {
   const { ready, authenticated, login, logout, user } = usePrivy();
-  const [mounted, setMounted] = useState(false);
-  const [showQR, setShowQR] = useState(false);
-
-  // Only fetch balance after component is mounted and user is authenticated
   const { data: balance } = useBalance({
-    address: mounted && authenticated ? (user?.wallet?.address as `0x${string}`) : undefined,
+    address: user?.wallet?.address as `0x${string}`,
   });
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const [showQR, setShowQR] = useState(false);
 
   const formatBalance = (value: bigint) => {
     const formatted = formatEther(value);
@@ -26,7 +19,7 @@ export default function LoginWithPrivy() {
     return `${whole}.${decimal.slice(0, 2)} ${balance?.symbol}`;
   };
 
-  if (!mounted || !ready) return <p className="text-center text-gray-600">Loading...</p>;
+  if (!ready) return <p className="text-center text-gray-600">Loading...</p>;
 
   return (
     <>
