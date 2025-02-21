@@ -261,7 +261,6 @@ export default function Content() {
                     <a
                       href={`https://evm.flowscan.io/address/${activeAddress}`}
                       target="_blank"
-                      rel="noopener noreferrer"
                       className="flex-1 sm:flex-initial px-4 py-2 rounded-lg text-white bg-blue-500 hover:bg-blue-600 text-center"
                     >
                       View Contract
@@ -366,9 +365,8 @@ export default function Content() {
 
         <footer className="mt-8 text-center border-t border-gray-200 pt-4">
           <a
-            href="https://developers.flow.com"
+            href="https://developers.flow.com?utm_source=flowtobooth&utm_id=beacon"
             target="_blank"
-            rel="noopener noreferrer"
             className="text-blue-500 hover:text-blue-600 font-medium"
           >
             Learn to Build on Flow
