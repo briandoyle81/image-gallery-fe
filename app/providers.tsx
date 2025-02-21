@@ -20,13 +20,13 @@ import {
 const privyConfig: PrivyClientConfig = {
   embeddedWallets: {
     createOnLogin: 'users-without-wallets',
-    requireUserPasswordOnCreate: true,
+    requireUserPasswordOnCreate: false,
     showWalletUIs: true,
   },
   // loginMethods: ['wallet', 'sms'],
   loginMethods: ['sms'],
   appearance: {
-    showWalletLoginFirst: true,
+    showWalletLoginFirst: false,
     theme: 'light',
     accentColor: '#676FFF',
     logo: 'https://cryptologos.cc/logos/flow-flow-logo.png', // Replace with your logo
