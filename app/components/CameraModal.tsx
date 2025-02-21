@@ -9,11 +9,15 @@ interface CameraModalProps {
 export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const startCamera = async () => {
     console.log('Starting camera...');
+    setError(null);
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'user' } // Prefer front camera on mobile
+      });
       console.log('Got media stream');
       setStream(mediaStream);
       if (videoRef.current) {
@@ -22,6 +26,11 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
       }
     } catch (err) {
       console.error("Error accessing camera:", err);
+      if (err instanceof DOMException && err.name === 'NotAllowedError') {
+        setError('Camera access denied. Please enable camera access and try again.');
+      } else {
+        setError('Unable to access camera. Please make sure your device has a camera and try again.');
+      }
     }
   };
 
@@ -66,9 +75,25 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
           <h2 className="text-xl font-semibold">Take a Picture</h2>
         </div>
         <div className="relative w-full aspect-[4/3]">
-          {!stream && (
+          {!stream && !error && (
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            </div>
+          )}
+          {error && (
+            <div className="absolute inset-0 flex items-center justify-center p-4">
+              <div className="text-center">
+                <p className="text-red-500 mb-4">{error}</p>
+                <button
+                  onClick={() => {
+                    setError(null);
+                    startCamera();
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                >
+                  Try Again
+                </button>
+              </div>
             </div>
           )}
           <video 
