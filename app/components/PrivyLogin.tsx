@@ -16,7 +16,7 @@ export default function LoginWithPrivy() {
   const formatBalance = (value: bigint) => {
     const formatted = formatEther(value);
     const [whole, decimal] = formatted.split('.');
-    return `${whole}.${decimal.slice(0, 2)} ${balance?.symbol}`;
+    return `${whole}${decimal?.slice(0, 2) ? `.${decimal.slice(0, 2)}` : ''} ${balance?.symbol || ''}`;
   };
 
   if (!ready) return <p className="text-center text-gray-600">Loading...</p>;
