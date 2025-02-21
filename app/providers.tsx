@@ -38,7 +38,7 @@ const privyConfig: PrivyClientConfig = {
 const wagmiConfig = createConfig({
   // chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
   chains: [flowMainnet],
-  ssr: true,
+  // ssr: true,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
