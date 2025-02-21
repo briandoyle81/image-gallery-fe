@@ -1,9 +1,13 @@
 'use client';
 
-import { connectorsForWallets } from '@rainbow-me/rainbowkit';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { createConfig, http, WagmiProvider } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { http } from 'wagmi';
+import {PrivyProvider, PrivyClientConfig} from '@privy-io/react-auth';
+// Make sure to import these from `@privy-io/wagmi`, not `wagmi`
+import {WagmiProvider, createConfig} from '@privy-io/wagmi';
+import { StyleSheetManager } from 'styled-components';
+import isPropValid from '@emotion/is-prop-valid';
+
 import {
   // base,
   flowMainnet,
@@ -12,33 +16,26 @@ import {
   // avalanche,
   // polygon,
 } from 'viem/chains';
-import {
-  // coinbaseWallet,
-  metaMaskWallet,
-} from '@rainbow-me/rainbowkit/wallets';
-import { flowWallet } from './flowWallet';
 
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID as string;
-
-const connectors = connectorsForWallets(
-  [
-    {
-      groupName: 'Recommended',
-      wallets: [flowWallet],
-    },
-    {
-      groupName: 'Other',
-      wallets: [metaMaskWallet],
-    },
-  ],
-  {
-    appName: 'Onchain Image Gallery',
-    projectId: projectId,
-  }
-);
+const privyConfig: PrivyClientConfig = {
+  embeddedWallets: {
+    createOnLogin: 'users-without-wallets',
+    requireUserPasswordOnCreate: true,
+    showWalletUIs: true,
+  },
+  loginMethods: ['wallet', 'sms'],
+  appearance: {
+    showWalletLoginFirst: true,
+    theme: 'light',
+    accentColor: '#676FFF',
+    logo: 'https://cryptologos.cc/logos/flow-flow-logo.png', // Replace with your logo
+    walletChainType: 'ethereum-only'
+  },
+  defaultChain: flowMainnet,
+  supportedChains: [flowMainnet],
+};
 
 const wagmiConfig = createConfig({
-  connectors,
   // chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
   chains: [flowMainnet],
   ssr: true,
@@ -58,12 +55,14 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact">
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <StyleSheetManager shouldForwardProp={isPropValid}>
+      <PrivyProvider appId={"cm7evbru70128dckxaxaqn62w"} config={privyConfig}>
+        <QueryClientProvider client={queryClient}>
+          <WagmiProvider config={wagmiConfig}>
+            {children}
+          </WagmiProvider>
+        </QueryClientProvider>
+      </PrivyProvider>
+    </StyleSheetManager>
   );
 }
