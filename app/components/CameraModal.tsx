@@ -10,20 +10,32 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isFrontCamera, setIsFrontCamera] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
-  const startCamera = async () => {
+  useEffect(() => {
+    // Check if we're on a mobile device
+    setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
+  }, []);
+
+  const startCamera = async (useFrontCamera = true) => {
     console.log('Starting camera...');
     setError(null);
     try {
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' }
+      const permissions = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: useFrontCamera ? 'user' : 'environment' }
+      }).catch(async () => {
+        const result = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: useFrontCamera ? 'user' : 'environment' }
+        });
+        return result;
       });
-      console.log('Got media stream:', mediaStream.active, mediaStream.getVideoTracks().length);
+
+      console.log('Got media stream:', permissions.active, permissions.getVideoTracks().length);
       
       if (videoRef.current) {
         console.log('Setting video source');
-        videoRef.current.srcObject = mediaStream;
-        // Ensure video plays after source is set
+        videoRef.current.srcObject = permissions;
         await videoRef.current.play().catch(e => {
           console.error('Error playing video:', e);
           throw e;
@@ -33,7 +45,8 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
         throw new Error('Video element not found');
       }
       
-      setStream(mediaStream);
+      setStream(permissions);
+      setIsFrontCamera(useFrontCamera);
     } catch (err) {
       console.error("Error accessing camera:", err);
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
@@ -42,6 +55,14 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
         setError('Unable to access camera. Please make sure your device has a camera and try again.');
       }
     }
+  };
+
+  const switchCamera = async () => {
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop());
+      setStream(null);
+    }
+    await startCamera(!isFrontCamera);
   };
 
   const stopCamera = () => {
@@ -81,8 +102,18 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-[90%]">
-        <div className="p-4 border-b">
+        <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-semibold">Take a Picture</h2>
+          {isMobile && (
+            <button
+              onClick={switchCamera}
+              className="bg-gray-100 p-2 rounded-full hover:bg-gray-200"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+              </svg>
+            </button>
+          )}
         </div>
         <div className="relative w-full aspect-[4/3]">
           {!stream && !error && (
