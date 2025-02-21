@@ -1,13 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useReadContract } from 'wagmi';
 import useContracts from '../contracts/contracts';
 import ImageGallery, { ImageGalleryImage } from '../components/GalleryDisplay';
 import { useEffect, useState } from 'react';
-import Header from '../components/Header';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
+
+// Only Header needs to be dynamic since it contains Privy
+const Header = dynamic(() => import('../components/Header'), { ssr: false });
 
 export default function GalleryPage() {
   const params = useParams();
@@ -30,28 +33,14 @@ export default function GalleryPage() {
     }
   }, [galleryData]);
 
-  if (status === 'reconnecting') {
-    return (
-      <>
-        <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <p>Loading...</p>
-          </div>
-        </div>
-      </>
-    );
-  }
+  if (status === 'reconnecting') return null;
 
   return (
     <>
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-6">
-          <Link 
-            href="/"
-            className="inline-flex items-center text-blue-500 hover:text-blue-600"
-          >
+          <Link href="/" className="inline-flex items-center text-blue-500 hover:text-blue-600">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 mr-2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
             </svg>

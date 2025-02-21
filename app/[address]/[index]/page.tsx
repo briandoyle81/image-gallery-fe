@@ -1,14 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useReadContract } from 'wagmi';
 import useContracts from '../../contracts/contracts';
 import { useEffect, useState } from 'react';
-import Header from '../../components/Header';
-import Image from 'next/image';
+import Link from 'next/link';
 import SingleImageMinter from '../../components/SingleImageMinter';
 import type { ImageGalleryImage } from '../../components/GalleryDisplay';
-import Link from 'next/link';
+import Image from 'next/image';
+
+// Only Header needs to be dynamic since it contains Privy
+const Header = dynamic(() => import('../../components/Header'), { ssr: false });
 
 export default function SingleImagePage() {
   const params = useParams();
