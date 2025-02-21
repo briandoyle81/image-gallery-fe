@@ -16,14 +16,24 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
     setError(null);
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } // Prefer front camera on mobile
+        video: { facingMode: 'user' }
       });
-      console.log('Got media stream');
-      setStream(mediaStream);
+      console.log('Got media stream:', mediaStream.active, mediaStream.getVideoTracks().length);
+      
       if (videoRef.current) {
         console.log('Setting video source');
         videoRef.current.srcObject = mediaStream;
+        // Ensure video plays after source is set
+        await videoRef.current.play().catch(e => {
+          console.error('Error playing video:', e);
+          throw e;
+        });
+      } else {
+        console.error('No video element reference');
+        throw new Error('Video element not found');
       }
+      
+      setStream(mediaStream);
     } catch (err) {
       console.error("Error accessing camera:", err);
       if (err instanceof DOMException && err.name === 'NotAllowedError') {
