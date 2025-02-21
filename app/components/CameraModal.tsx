@@ -1,5 +1,3 @@
-'use client';
-
 import { useRef, useState, useEffect } from 'react';
 
 interface CameraModalProps {
@@ -11,31 +9,19 @@ interface CameraModalProps {
 export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const startCamera = async () => {
-    setError(null);
     console.log('Starting camera...');
     try {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Camera access is not supported in this browser or context');
-      }
-
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: 'environment' // Prefer back camera on mobile
-        }
-      });
-      
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
       console.log('Got media stream');
       setStream(mediaStream);
       if (videoRef.current) {
         console.log('Setting video source');
         videoRef.current.srcObject = mediaStream;
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Error accessing camera:", err);
-      setError(err.message || 'Could not access camera');
     }
   };
 
@@ -44,7 +30,6 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
       stream.getTracks().forEach(track => track.stop());
       setStream(null);
     }
-    setError(null);
   };
 
   const takePicture = () => {
@@ -75,34 +60,24 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full h-[90vh] max-w-lg flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-[90%]">
         <div className="p-4 border-b">
           <h2 className="text-xl font-semibold">Take a Picture</h2>
         </div>
-        <div className="flex-1 relative">
-          {error ? (
-            <div className="absolute inset-0 flex items-center justify-center flex-col p-4">
-              <p className="text-red-500 text-center mb-4">{error}</p>
-              <button
-                onClick={startCamera}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-              >
-                Try Again
-              </button>
-            </div>
-          ) : stream ? (
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : (
+        <div className="relative w-full aspect-[4/3]">
+          {!stream && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
             </div>
           )}
+          <video 
+            ref={videoRef} 
+            autoPlay 
+            playsInline
+            className={`w-full h-full object-contain scale-x-[-1] ${!stream ? 'hidden' : ''}`}
+            onPlay={() => videoRef.current?.play()}
+          />
         </div>
         <div className="p-4 flex justify-between">
           <button
