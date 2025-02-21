@@ -15,17 +15,11 @@ export default function GalleryPage() {
   const [images, setImages] = useState<ImageGalleryImage[]>([]);
   const { galleryMinter } = useContracts();
   const { status } = useAccount();
-  const [isBrowser, setIsBrowser] = useState(false);
-
-  useEffect(() => {
-    setIsBrowser(true);
-  }, []);
 
   const { data: galleryData } = useReadContract({
     abi: galleryMinter.abi,
     address: address as `0x${string}`,
     functionName: 'getImages',
-    enabled: isBrowser,
   });
 
   useEffect(() => {
@@ -48,8 +42,6 @@ export default function GalleryPage() {
       </>
     );
   }
-
-  if (!isBrowser) return <div>Loading...</div>;
 
   return (
     <>

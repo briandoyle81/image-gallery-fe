@@ -3,7 +3,7 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useBalance } from 'wagmi';
 import { formatEther } from 'viem';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function LoginWithPrivy() {
@@ -12,24 +12,14 @@ export default function LoginWithPrivy() {
     address: user?.wallet?.address as `0x${string}`,
   });
   const [showQR, setShowQR] = useState(false);
-  const [isBrowser, setIsBrowser] = useState(false);
-
-  useEffect(() => {
-    setIsBrowser(true);
-  }, []);
 
   const formatBalance = (value: bigint) => {
-    try {
-      const formatted = formatEther(value);
-      const [whole, decimal] = formatted.split('.');
-      return `${whole}.${decimal.slice(0, 2)} ${balance?.symbol}`;
-    } catch (err) {
-      console.error('Error formatting balance:', err);
-      return '...';
-    }
+    const formatted = formatEther(value);
+    const [whole, decimal] = formatted.split('.');
+    return `${whole}.${decimal.slice(0, 2)} ${balance?.symbol}`;
   };
 
-  if (!ready || !isBrowser) return <p className="text-center text-gray-600">Loading...</p>;
+  if (!ready) return <p className="text-center text-gray-600">Loading...</p>;
 
   return (
     <>

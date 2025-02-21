@@ -57,12 +57,6 @@ export default function Content() {
 
   const chainId = useChainId();
 
-  const [isBrowser, setIsBrowser] = useState(false);
-
-  useEffect(() => {
-    setIsBrowser(true);
-  }, []);
-
   function getCurrentFactory() {
     if (account.chainId) {
       switch (account.chainId) {
@@ -107,12 +101,13 @@ export default function Content() {
     hash: data,
   });
 
-  const { data: galleryAddressesData } = useReadContract({
-    abi: getCurrentFactory().abi,
-    address: getCurrentFactory().address,
-    functionName: 'getGalleries',
-    args: [account.address as `0x${string}`],
-  });
+  const { data: galleryAddressesData, queryKey: galleryAddressesQueryKey } =
+    useReadContract({
+      abi: getCurrentFactory().abi,
+      address: getCurrentFactory().address,
+      functionName: 'getGalleries',
+      args: [account.address],
+    });
 
   useEffect(() => {
     if (galleryAddressesData) {
@@ -205,13 +200,12 @@ export default function Content() {
   }, [account.isConnected]);
 
   function handleCreateGallery() {
-    if (!account.address) return;
     setAwaitingResponse(true);
     writeContract({
       abi: getCurrentFactory().abi,
       address: getCurrentFactory().address,
       functionName: getCreateFunctionName(),
-      args: [account.address as `0x${string}`],
+      args: [account.address],
     });
   }
 
@@ -221,23 +215,15 @@ export default function Content() {
     console.log(address);
   }
 
-  const handleSaveOnchain = async () => {
-    try {
-      setAwaitingResponse(true);
-      writeContract({
-        abi: personalImageGallery.abi,
-        address: activeAddress as `0x${string}`,
-        functionName: 'addImage',
-        args: ['', uploadedBase64Image],
-      });
-    } catch (err) {
-      console.error('Error saving onchain:', err);
-    } finally {
-      setAwaitingResponse(false);
-    }
-  };
-
-  if (!isBrowser) return <div>Loading...</div>;
+  function handleSaveOnchain() {
+    setAwaitingResponse(true);
+    writeContract({
+      abi: personalImageGallery.abi,
+      address: activeAddress as `0x${string}`,
+      functionName: 'addImage',
+      args: ['', uploadedBase64Image],
+    });
+  }
 
   return (
     <div className="card gap-1">
