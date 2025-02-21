@@ -18,24 +18,36 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
     setIsMobile(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent));
   }, []);
 
+  const checkCameraPermission = async () => {
+    try {
+      const permissionStatus = await navigator.permissions.query({ name: "camera" as PermissionName });
+      return permissionStatus.state === "granted";
+    } catch (err) {
+      console.error("Error checking camera permission:", err);
+      return false;
+    }
+  };
+
   const startCamera = async (useFrontCamera = true) => {
     console.log('Starting camera...');
     setError(null);
     try {
-      const permissions = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: useFrontCamera ? 'user' : 'environment' }
-      }).catch(async () => {
-        const result = await navigator.mediaDevices.getUserMedia({ 
-          video: { facingMode: useFrontCamera ? 'user' : 'environment' }
-        });
-        return result;
-      });
+      const hasPermission = await checkCameraPermission();
+      console.log('Camera permission status:', hasPermission);
 
-      console.log('Got media stream:', permissions.active, permissions.getVideoTracks().length);
+      const constraints = {
+        video: { facingMode: useFrontCamera ? 'user' : 'environment' }
+      };
+
+      const mediaStream = hasPermission
+        ? await navigator.mediaDevices.getUserMedia(constraints)
+        : await navigator.mediaDevices.getUserMedia(constraints); // Will prompt if needed
+
+      console.log('Got media stream:', mediaStream.active, mediaStream.getVideoTracks().length);
       
       if (videoRef.current) {
         console.log('Setting video source');
-        videoRef.current.srcObject = permissions;
+        videoRef.current.srcObject = mediaStream;
         await videoRef.current.play().catch(e => {
           console.error('Error playing video:', e);
           throw e;
@@ -45,7 +57,7 @@ export default function CameraModal({ isOpen, onClose, onCapture }: CameraModalP
         throw new Error('Video element not found');
       }
       
-      setStream(permissions);
+      setStream(mediaStream);
       setIsFrontCamera(useFrontCamera);
     } catch (err) {
       console.error("Error accessing camera:", err);
