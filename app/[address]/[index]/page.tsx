@@ -1,6 +1,5 @@
 'use client';
 
-import '@rainbow-me/rainbowkit/styles.css';
 import { useParams } from 'next/navigation';
 import { useReadContract } from 'wagmi';
 import useContracts from '../../contracts/contracts';

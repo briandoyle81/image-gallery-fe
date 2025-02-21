@@ -1,8 +1,7 @@
 'use client';
 
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
-
+import LoginWithPrivy from './PrivyLogin';
 export default function Header() {
   const { status } = useAccount();
 
@@ -13,7 +12,7 @@ export default function Header() {
           <h1 className="text-2xl font-bold">FlowtoBooth</h1>
           <h4 className="text-sm">A fun benchmark, not a production app</h4>
         </div>
-        {status !== 'reconnecting' && <ConnectButton />}
+        {status !== 'reconnecting' && <LoginWithPrivy />}
       </div>
     </header>
   );
