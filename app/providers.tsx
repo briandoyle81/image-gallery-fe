@@ -2,9 +2,9 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { http } from 'wagmi';
-import {PrivyProvider, PrivyClientConfig} from '@privy-io/react-auth';
+import { PrivyProvider, PrivyClientConfig } from '@privy-io/react-auth';
 // Make sure to import these from `@privy-io/wagmi`, not `wagmi`
-import {WagmiProvider, createConfig} from '@privy-io/wagmi';
+import { WagmiProvider, createConfig } from '@privy-io/wagmi';
 import { StyleSheetManager } from 'styled-components';
 import isPropValid from '@emotion/is-prop-valid';
 
@@ -24,7 +24,7 @@ const privyConfig: PrivyClientConfig = {
     showWalletUIs: true,
   },
   // loginMethods: ['wallet', 'sms'],
-  loginMethods: ['sms'],
+  loginMethods: ['email', 'sms'],
   appearance: {
     showWalletLoginFirst: false,
     theme: 'light',

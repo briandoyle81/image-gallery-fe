@@ -15,6 +15,11 @@ export default function GalleryPage() {
   const [images, setImages] = useState<ImageGalleryImage[]>([]);
   const { galleryMinter } = useContracts();
   const { status } = useAccount();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { data: galleryData } = useReadContract({
     abi: galleryMinter.abi,
@@ -29,6 +34,8 @@ export default function GalleryPage() {
       setImages(newImages);
     }
   }, [galleryData]);
+
+  if (!mounted) return null;
 
   if (status === 'reconnecting') {
     return (
