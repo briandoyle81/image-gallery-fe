@@ -3,15 +3,20 @@
 import { usePrivy } from '@privy-io/react-auth';
 import { useBalance } from 'wagmi';
 import { formatEther } from 'viem';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
 export default function LoginWithPrivy() {
+  const [mounted, setMounted] = useState(false);
   const { ready, authenticated, login, logout, user } = usePrivy();
   const { data: balance } = useBalance({
     address: user?.wallet?.address as `0x${string}`,
   });
   const [showQR, setShowQR] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const formatBalance = (value: bigint) => {
     const formatted = formatEther(value);
@@ -19,7 +24,7 @@ export default function LoginWithPrivy() {
     return `${whole}${decimal?.slice(0, 2) ? `.${decimal.slice(0, 2)}` : ''} ${balance?.symbol || ''}`;
   };
 
-  if (!ready) return <p className="text-center text-gray-600">Loading...</p>;
+  if (!mounted || !ready) return null;
 
   return (
     <>
@@ -63,7 +68,7 @@ export default function LoginWithPrivy() {
               onClick={login}
               className="button button-connect bg-green-500 text-white font-semibold w-full py-2 px-4 rounded-md hover:bg-green-600 transition"
             >
-              Login with Privy
+              Log In with Privy
             </button>
           </div>
         )}

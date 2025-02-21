@@ -1,9 +1,21 @@
 'use client';
 
-import Content from './components/Content';
-import Header from './components/Header';
+import dynamic from 'next/dynamic';
+import { useState, useEffect } from 'react';
+
+// Dynamically import components with no SSR
+const Content = dynamic(() => import('./components/Content'), { ssr: false });
+const Header = dynamic(() => import('./components/Header'), { ssr: false });
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
