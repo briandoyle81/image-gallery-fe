@@ -1,3 +1,5 @@
+'use client';
+
 import { Wallet, getWalletConnectConnector } from '@rainbow-me/rainbowkit';
 
 export interface MyWalletOptions {
