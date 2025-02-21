@@ -2,8 +2,17 @@
 
 import { useAccount } from 'wagmi';
 import LoginWithPrivy from './PrivyLogin';
+import { useState, useEffect } from 'react';
+
 export default function Header() {
   const { status } = useAccount();
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  useEffect(() => {
+    setIsBrowser(true);
+  }, []);
+
+  if (!isBrowser) return null;
 
   return (
     <header className="bg-white shadow-md p-4">

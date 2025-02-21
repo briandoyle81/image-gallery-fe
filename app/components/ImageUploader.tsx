@@ -25,81 +25,115 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
     base64Str: string,
     maxDimension: number = 256
   ): Promise<string> => {
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.src = base64Str;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
+    return new Promise((resolve, reject) => {
+      try {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = base64Str;
+        img.onerror = (err) => reject(err);
+        img.onload = () => {
+          try {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
 
-        // Calculate new dimensions maintaining aspect ratio
-        if (width > height) {
-          if (width > maxDimension) {
-            height = height * (maxDimension / width);
-            width = maxDimension;
+            // Calculate new dimensions maintaining aspect ratio
+            if (width > height) {
+              if (width > maxDimension) {
+                height = height * (maxDimension / width);
+                width = maxDimension;
+              }
+            } else {
+              if (height > maxDimension) {
+                width = width * (maxDimension / height);
+                height = maxDimension;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d')!;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Start with high quality and reduce until size is under 32KB
+            let quality = 1.0;
+            let result = canvas.toDataURL('image/jpeg', quality);
+
+            while (result.length > 32 * 1024 && quality > 0.1) {
+              quality -= 0.1;
+              result = canvas.toDataURL('image/jpeg', quality);
+            }
+
+            resolve(result);
+          } catch (err) {
+            reject(err);
           }
-        } else {
-          if (height > maxDimension) {
-            width = width * (maxDimension / height);
-            height = maxDimension;
-          }
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Start with high quality and reduce until size is under 32KB
-        let quality = 1.0;
-        let result = canvas.toDataURL('image/jpeg', quality);
-
-        while (result.length > 32 * 1024 && quality > 0.1) {
-          quality -= 0.1;
-          result = canvas.toDataURL('image/jpeg', quality);
-        }
-
-        resolve(result);
-      };
+        };
+      } catch (err) {
+        reject(err);
+      }
     });
   };
 
   const handleImageUpload = async (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const file = event.target.files?.[0];
+    try {
+      const file = event.target.files?.[0];
 
-    if (!file) {
-      setError('No file selected');
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      setError('Only image files are allowed');
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const base64 = reader.result as string;
-      const sizeInKB = getStringSizeInKB(base64);
-
-      let finalImage;
-      if (sizeInKB > 32) {
-        finalImage = await resizeAndConvertToJpeg(base64);
-      } else {
-        finalImage = await resizeAndConvertToJpeg(base64); // Convert to JPEG without resizing
+      if (!file) {
+        setError('No file selected');
+        return;
       }
 
-      onImageUpload(finalImage);
-      setUploadedImageSize(getStringSizeInKB(finalImage));
-      setError(null);
-    };
-    reader.onerror = () => {
-      setError('Failed to read file');
-    };
-    reader.readAsDataURL(file);
+      if (!file.type.startsWith('image/')) {
+        setError('Only image files are allowed');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result as string;
+        const sizeInKB = getStringSizeInKB(base64);
+
+        let finalImage;
+        if (sizeInKB > 32) {
+          finalImage = await resizeAndConvertToJpeg(base64);
+        } else {
+          finalImage = await resizeAndConvertToJpeg(base64); // Convert to JPEG without resizing
+        }
+
+        onImageUpload(finalImage);
+        setUploadedImageSize(getStringSizeInKB(finalImage));
+        setError(null);
+      };
+      reader.onerror = () => {
+        setError('Failed to read file');
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      console.error('Error handling file:', err);
+    }
+  };
+
+  const checkCameraPermissions = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      stream.getTracks().forEach(track => track.stop());
+      return true;
+    } catch (err) {
+      console.error('Camera permission error:', err);
+      return false;
+    }
+  };
+
+  const handleCameraClick = async () => {
+    const hasPermission = await checkCameraPermissions();
+    if (hasPermission) {
+      setShowCamera(true);
+    } else {
+      setError('Camera permission denied');
+    }
   };
 
   return (
@@ -108,9 +142,7 @@ export default function ImageUploader({ onImageUpload }: ImageUploaderProps) {
         <div className="mb-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => {
-                setShowCamera(true);
-              }}
+              onClick={handleCameraClick}
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
