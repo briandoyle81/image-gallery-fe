@@ -1,9 +1,12 @@
 'use client';
 
-import { connectorsForWallets } from '@rainbow-me/rainbowkit';
+import {
+  DynamicContextProvider,
+} from "@dynamic-labs/sdk-react-core";
+import { FlowWalletConnectors } from "@dynamic-labs/flow";
+import { DynamicWagmiConnector } from '@dynamic-labs/wagmi-connector';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createConfig, http, WagmiProvider } from 'wagmi';
-import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import {
   // base,
   flowMainnet,
@@ -12,36 +15,15 @@ import {
   // avalanche,
   // polygon,
 } from 'viem/chains';
-import {
-  // coinbaseWallet,
-  metaMaskWallet,
-} from '@rainbow-me/rainbowkit/wallets';
-import { flowWallet } from './flowWallet';
+
 
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_ID as string;
 
-const connectors = connectorsForWallets(
-  [
-    {
-      groupName: 'Recommended',
-      wallets: [flowWallet],
-    },
-    {
-      groupName: 'Other',
-      wallets: [metaMaskWallet],
-    },
-  ],
-  {
-    appName: 'Onchain Image Gallery',
-    projectId: projectId,
-  }
-);
-
 const wagmiConfig = createConfig({
-  connectors,
   // chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
   chains: [flowMainnet],
   ssr: true,
+  multiInjectedProviderDiscovery: false,
   transports: {
     // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
@@ -58,12 +40,19 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   const queryClient = new QueryClient();
 
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider modalSize="compact">
-          {children}
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <DynamicContextProvider
+      settings={{
+        environmentId: "2f3d8eac-f390-4188-ae5f-0d6fe95659c0",
+        walletConnectors: [FlowWalletConnectors],
+      }}
+    >
+      <WagmiProvider config={wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          <DynamicWagmiConnector>
+            {children}
+          </DynamicWagmiConnector>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </DynamicContextProvider>
   );
 }

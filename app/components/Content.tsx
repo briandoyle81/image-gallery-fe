@@ -23,6 +23,7 @@ import {
   bsc,
 } from 'viem/chains';
 import Image from 'next/image';
+import { useDynamicContext } from '@dynamic-labs/sdk-react-core';
 
 export default function Content() {
   const [reload, setReload] = useState(false);
@@ -41,6 +42,7 @@ export default function Content() {
   const [isLoadingPrices, setIsLoadingPrices] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
+  const { user } = useDynamicContext();
   const account = useAccount();
   const queryClient = useQueryClient();
   const {
@@ -56,6 +58,9 @@ export default function Content() {
   } = useContracts();
 
   const chainId = useChainId();
+
+  // Only show content when both Dynamic and Wagmi confirm connection
+  const isConnected = !!user && account.isConnected;
 
   function getCurrentFactory() {
     if (account.chainId) {
@@ -228,7 +233,7 @@ export default function Content() {
   return (
     <div className="card gap-1">
       <div className="flex flex-col gap-4">
-        {account.isConnected && (
+        {isConnected ? (
           <div>
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-8">
               <div className="w-full sm:w-1/2">
@@ -354,11 +359,10 @@ export default function Content() {
               </div>
             )}
           </div>
-        )}
-        {!account.isConnected && (
+        ) : (
           <div className="text-center">
             <p className="text-xl font-bold">
-              Connect your wallet to view your galleries.  Use the Flow Wallet for sponsored gas!
+              Connect your wallet to view your galleries. Use the Flow Wallet for sponsored gas!
             </p>
           </div>
         )}
