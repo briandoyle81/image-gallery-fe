@@ -24,7 +24,7 @@ const privyConfig: PrivyClientConfig = {
     showWalletUIs: true,
   },
   // loginMethods: ['wallet', 'sms'],
-  loginMethods: ['sms'],
+  loginMethods: ['email', 'sms'],
   appearance: {
     showWalletLoginFirst: false,
     theme: 'light',
