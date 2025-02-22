@@ -4,13 +4,14 @@ import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useReadContract } from 'wagmi';
 import useContracts from '../contracts/contracts';
-import ImageGallery, { ImageGalleryImage } from '../components/GalleryDisplay';
+import { ImageGalleryImage } from '../components/GalleryDisplay';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAccount } from 'wagmi';
 
-// Only Header needs to be dynamic since it contains Privy
+// Dynamically import components with no SSR
 const Header = dynamic(() => import('../components/Header'), { ssr: false });
+const ImageGallery = dynamic(() => import('../components/GalleryDisplay'), { ssr: false });
 
 export default function GalleryPage() {
   const params = useParams();
@@ -28,7 +29,6 @@ export default function GalleryPage() {
   useEffect(() => {
     if (galleryData) {
       const newImages = galleryData as ImageGalleryImage[];
-      newImages.reverse();
       setImages(newImages);
     }
   }, [galleryData]);

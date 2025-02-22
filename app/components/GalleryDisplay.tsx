@@ -76,10 +76,14 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, galleryAddress }) =
     );
   }
 
+  // Create reversed array for display
+  const displayImages = [...images].reverse();
+
   return (
     <div className="container mx-auto px-4">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {images.map((image, index) => {
+        {displayImages.map((image, displayIndex) => {
+          const originalIndex = images.length - 1 - displayIndex;
           const isValidBase64Image =
             typeof image.base64EncodedImage === "string" &&
             image.base64EncodedImage.startsWith("data:image/") &&
@@ -87,15 +91,15 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, galleryAddress }) =
 
           return (
             <div
-              key={index}
+              key={originalIndex}
               className="border border-gray-200 rounded-lg overflow-hidden shadow-md"
             >
               {isValidBase64Image ? (
-                <Link href={`/${galleryAddress}/${index}`}>
+                <Link href={`/${galleryAddress}/${originalIndex}`}>
                   <div className="relative w-full aspect-square cursor-pointer hover:opacity-90 transition-opacity">
                     <Image
                       src={image.base64EncodedImage}
-                      alt={image.description || `Image ${index + 1}`}
+                      alt={image.description || `Image ${displayIndex + 1}`}
                       fill
                       className="object-cover"
                       sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -111,16 +115,16 @@ const ImageGallery: React.FC<ImageGalleryProps> = ({ images, galleryAddress }) =
                 <div className="p-2 text-center">
                   <button
                     className={`px-4 py-2 rounded-lg text-white ${
-                      isConnected && !mintingStates[index]
+                      isConnected && !mintingStates[originalIndex]
                         ? 'bg-blue-500 hover:bg-blue-600'
                         : 'bg-gray-300 cursor-not-allowed'
                     }`}
-                    disabled={!isConnected || mintingStates[index]}
-                    onClick={() => handleMint(index)}
+                    disabled={!isConnected || mintingStates[originalIndex]}
+                    onClick={() => handleMint(originalIndex)}
                   >
-                    {mintingStates[index] 
+                    {mintingStates[originalIndex] 
                       ? 'Processing...' 
-                      : mintedImages[index] 
+                      : mintedImages[originalIndex] 
                         ? 'Mint Again' 
                         : 'Mint'
                     }
