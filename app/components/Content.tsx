@@ -310,7 +310,7 @@ export default function Content() {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => {
-                              const tweetText = "I just put this image onchain with FlowtoBooth! Mint it from my gallery!🖼️\n";
+                              const tweetText = "I just put a photo 100% onchain with FlowtoBooth!  Mint it from my gallery!🖼️\n";
                               const url = `https://flowtobooth.vercel.app/${activeAddress}`;
                               window.open(
                                 `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}`,
