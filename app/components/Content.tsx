@@ -309,13 +309,41 @@ export default function Content() {
                       {uploadSuccess ? (
                         <div className="flex items-center justify-center gap-2">
                           <button
-                            onClick={() => {
-                              const tweetText = "I just put a photo 100% onchain with FlowtoBooth!  Mint it from my gallery!🖼️\n";
-                              const url = `https://flowtobooth.vercel.app/${activeAddress}`;
-                              window.open(
-                                `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}`,
-                                '_blank'
-                              );
+                            onClick={async () => {
+                              try {
+                                // Create form data with upload preset
+                                const formData = new FormData();
+                                formData.append('file', uploadedBase64Image);
+                                formData.append('upload_preset', process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET!);
+                                
+                                // Upload to Cloudinary
+                                const response = await fetch(
+                                  `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+                                  {
+                                    method: 'POST',
+                                    body: formData,
+                                  }
+                                );
+                                
+                                const data = await response.json();
+                                const imageUrl = data.secure_url;
+                                
+                                const tweetText = "I just put a photo 100% onchain with FlowtoBooth! Mint it from my gallery!🖼️\n";
+                                const url = `https://flowtobooth.vercel.app/${activeAddress}`;
+                                window.open(
+                                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}&image=${encodeURIComponent(imageUrl)}`,
+                                  '_blank'
+                                );
+                              } catch (err) {
+                                console.error('Error uploading image:', err);
+                                // Fallback to just sharing the URL if image upload fails
+                                const tweetText = "I just put a photo 100% onchain with FlowtoBooth! Mint it from my gallery!🖼️\n";
+                                const url = `https://flowtobooth.vercel.app/${activeAddress}`;
+                                window.open(
+                                  `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(url)}`,
+                                  '_blank'
+                                );
+                              }
                             }}
                             className="px-4 py-2 bg-[#1DA1F2] text-white rounded-lg hover:bg-[#1a8cd8] transition-colors flex items-center gap-2"
                           >
