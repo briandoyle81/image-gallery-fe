@@ -41,9 +41,9 @@ const wagmiConfig = createConfig({
   chains: [flowMainnet],
   ssr: true,
   transports: {
-    // [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
+    [flowMainnet.id]: http('https://mainnet-preview.evm.nodes.onflow.org'),
     // [flowMainnet.id]: http('https://mainnet.evm.nodes.onflow.org'),
-    [flowMainnet.id]: http('https://white-bold-sound.flow-mainnet.quiknode.pro/ed505487257d3fad3671bcae7eb001dd6de5ea49'),
+    // [flowMainnet.id]: http('https://white-bold-sound.flow-mainnet.quiknode.pro/ed505487257d3fad3671bcae7eb001dd6de5ea49'),
     // [base.id]: http(),
     // [arbitrum.id]: http(),
     // [avalanche.id]: http(),

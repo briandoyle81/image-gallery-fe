@@ -373,7 +373,7 @@ export default function Content() {
         {!account.isConnected && (
           <div className="text-center">
             <p className="text-xl font-bold">
-              Connect your wallet to view your galleries.  Use the Flow Wallet for sponsored gas!
+              Connect your wallet to view your galleries.
             </p>
           </div>
         )}
