@@ -9,25 +9,13 @@ type TransactionCostBoxProps = {
   isLoading?: boolean;
 };
 
-function getCostDetails(costDetails: ChainCost[]) {
-  // If we're in a mobile view, return the last item and one other random item
-  if (window.innerWidth < 640) {
-    const lastItem = costDetails[costDetails.length - 1];
-    // Pick an item that changes every 5 minutes
-    const randomIndex = Math.floor(Date.now() / 300000) % (costDetails.length - 1);
-    const randomItem = costDetails[randomIndex];
-    return [randomItem, lastItem];
-  }
-  return costDetails;
-}
-
 const TransactionCostBox: React.FC<TransactionCostBoxProps> = ({
   costDetails,
   isLoading = false,
 }) => {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {getCostDetails(costDetails).map((chain) => (
+      {costDetails.map((chain) => (
         <div
           key={chain.chainName}
           className="bg-white shadow-md rounded-lg p-4 flex items-center space-x-4"
