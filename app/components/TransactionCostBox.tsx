@@ -37,19 +37,13 @@ const TransactionCostBox: React.FC<TransactionCostBoxProps> = ({
               <p className="text-red-500 text-sm">Error: {chain.error}</p>
             ) : (
               <p className="text-gray-700">
-                {chain.chainName === 'Flow Wallet' ? (
-                  <span className="font-mono">
-                    <s>$0.00 USD</s> <strong>FREE!</strong>
-                  </span>
-                ) : (
-                  <span className="font-mono">
-                    $
-                    {Number(chain.totalCost) > 0.01
-                      ? Number(chain.totalCost).toFixed(2)
-                      : chain.totalCost || '--.-'}{' '}
-                    USD
-                  </span>
-                )}
+                <span className="font-mono">
+                  $
+                  {Number(chain.totalCost) > 0.01
+                    ? Number(chain.totalCost).toFixed(2)
+                    : chain.totalCost || '--.-'}{' '}
+                  USD
+                </span>
               </p>
             )}
           </div>
