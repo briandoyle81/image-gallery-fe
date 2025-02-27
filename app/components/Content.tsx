@@ -19,7 +19,6 @@ import {
   polygon,
   base,
   arbitrum,
-  avalanche,
   bsc,
 } from 'viem/chains';
 import Image from 'next/image';
@@ -51,7 +50,6 @@ export default function Content() {
     polygonImageGalleryFactory,
     baseImageGalleryFactory,
     arbitrumImageGalleryFactory,
-    avalancheImageGalleryFactory,
     bscImageGalleryFactory,
   } = useContracts();
 
@@ -69,8 +67,6 @@ export default function Content() {
           return baseImageGalleryFactory;
         case arbitrum.id:
           return arbitrumImageGalleryFactory;
-        case avalanche.id:
-          return avalancheImageGalleryFactory;
         case bsc.id:
           return bscImageGalleryFactory;
         default:

@@ -6,7 +6,6 @@ import {
 import { contractData } from '@/app/contracts/contractData';
 import {
   mainnet,
-  avalanche,
   base,
   bsc,
   arbitrum,
@@ -36,7 +35,6 @@ export async function POST(request: NextRequest) {
     mainnetImageGallery,
     polygonImageGallery,
     arbitrumImageGallery,
-    avalancheImageGallery,
   } = contractData;
 
   try {
@@ -100,16 +98,6 @@ export async function POST(request: NextRequest) {
 
     costs.push(
       await estimateContractCallCosts({
-        chain: avalanche,
-        address: avalancheImageGallery.address,
-        abi: avalancheImageGallery.abi,
-        functionName: 'addImage',
-        args: ['', mockedImage],
-      })
-    );
-
-    costs.push(
-      await estimateContractCallCosts({
         chain: bsc,
         address: bnbImageGallery.address,
         abi: bnbImageGallery.abi,
@@ -127,12 +115,6 @@ export async function POST(request: NextRequest) {
         args: ['', mockedImage],
       })
     );
-
-    costs.push({
-      chainName: 'Flow Wallet',
-      logo: '/chain-logos/flow-flow-logo.png',
-      totalCost: '0.00000',
-    });
 
     return NextResponse.json(costs);
   } catch (error) {

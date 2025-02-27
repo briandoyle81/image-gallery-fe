@@ -13,7 +13,6 @@ import {
   flowMainnet,
   // bsc,
   // arbitrum,
-  // avalanche,
   // polygon,
 } from 'viem/chains';
 
@@ -37,7 +36,7 @@ const privyConfig: PrivyClientConfig = {
 };
 
 const wagmiConfig = createConfig({
-  // chains: [flowMainnet, base, arbitrum, avalanche, polygon, bsc],
+  // chains: [flowMainnet, base, arbitrum, polygon, bsc],
   chains: [flowMainnet],
   ssr: true,
   transports: {
@@ -46,7 +45,6 @@ const wagmiConfig = createConfig({
     // [flowMainnet.id]: http('https://white-bold-sound.flow-mainnet.quiknode.pro/ed505487257d3fad3671bcae7eb001dd6de5ea49'),
     // [base.id]: http(),
     // [arbitrum.id]: http(),
-    // [avalanche.id]: http(),
     // [polygon.id]: http(),
     // [bsc.id]: http(),
   },

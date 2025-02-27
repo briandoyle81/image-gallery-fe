@@ -7,7 +7,6 @@ import {
   encodeFunctionData,
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { avalanche } from 'wagmi/chains';
 import { chainCoinGeckoIds, chainLogos } from './ChainConstants';
 
 const WALLET_PRIVATE_KEY = process.env.DEPLOY_WALLET_1;
@@ -21,20 +20,6 @@ type PriceCache = {
 
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes in milliseconds
 const priceCache: Record<string, PriceCache> = {};
-
-// Update the Avalanche chain configuration with Ankr's RPC URL
-const avalancheChain = {
-  ...avalanche,
-  rpcUrls: {
-    ...avalanche.rpcUrls,
-    default: {
-      http: ['https://rpc.ankr.com/avalanche'],
-    },
-    public: {
-      http: ['https://rpc.ankr.com/avalanche'],
-    },
-  },
-};
 
 async function getTokenPriceInUSD(chainName: string): Promise<number> {
   const geckoId = chainCoinGeckoIds[chainName];
@@ -129,31 +114,7 @@ export async function estimateContractCallCosts(contractDetails: {
   console.log(`Wallet client address: ${walletClient.account.address}`);
 
   try {
-    // Check for Avalanche size limits
-    if (contractDetails.chain.id === avalanche.id) {
-      // Check args length - assuming the base64 string is the second argument
-      if (
-        contractDetails.args &&
-        contractDetails.args[1] &&
-        typeof contractDetails.args[1] === 'string'
-      ) {
-        // Avalanche has an 8M gas limit
-        // Being conservative, let's limit to 8KB to account for other transaction costs
-        const base64String = contractDetails.args[1];
-        if (base64String.length > 8 * 1024) {
-          return {
-            chainName: contractDetails.chain.name,
-            logo: chainLogos[contractDetails.chain.name] || '',
-            error: 'Max size ~8KB',
-          };
-        }
-      }
-    }
-
-    const chain =
-      contractDetails.chain.id === avalanche.id
-        ? avalancheChain
-        : contractDetails.chain;
+    const chain = contractDetails.chain;
 
     console.log('Using chain config:', chain);
 
@@ -195,19 +156,6 @@ export async function estimateContractCallCosts(contractDetails: {
     };
   } catch (error) {
     console.error(error);
-
-    // Show full error only for Avalanche's size error
-    if (
-      contractDetails.chain.id === avalanche.id &&
-      error instanceof Error &&
-      error.message?.includes('size')
-    ) {
-      return {
-        chainName: contractDetails.chain.name,
-        logo: chainLogos[contractDetails.chain.name] || '',
-        error: error.message,
-      };
-    }
 
     // Simplified error messages for all other cases
     if (
