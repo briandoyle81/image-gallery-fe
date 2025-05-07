@@ -404,11 +404,11 @@ export default function Content() {
 
         <footer className="mt-8 text-center border-t border-gray-200 pt-4">
           <a
-            href="https://developers.flow.com?utm_source=flowtobooth&utm_id=beacon"
+            href="https://developers.flow.com/tutorials/flowtobooth?utm_source=flowtobooth&utm_id=beacon"
             target="_blank"
             className="text-blue-500 hover:text-blue-600 font-medium"
           >
-            Learn to Build on Flow
+            Learn to Build this App on Flow
           </a>
         </footer>
       </div>
